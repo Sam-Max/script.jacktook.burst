@@ -8,6 +8,7 @@
 """
 
 from __future__ import unicode_literals
+import logging
 from future.builtins import range, chr
 from future.utils import PY3
 
@@ -23,7 +24,6 @@ else:
     from .parser.HTMLParser import HTMLParser
 from kodi_six import py2_encode, py2_decode
 
-from elementum.provider import log
 
 def clean_title(string=None):
     """
@@ -310,8 +310,8 @@ def fix_bad_unicode(string):
                 return fix_bad_unicode(good_text)
         except Exception as e:
             import traceback
-            log.warning("Could not fix unicode string: %s" % repr(e))
-            map(log.debug, traceback.format_exc().split("\n"))
+            logging.warning("Could not fix unicode string: %s" % repr(e))
+            map(logging.debug, traceback.format_exc().split("\n"))
             pass
 
     return string

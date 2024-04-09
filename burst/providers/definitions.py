@@ -3,6 +3,8 @@
 Definitions and overrides loader
 """
 
+import logging
+from burst.kodi import get_setting
 from future.utils import PY3, iteritems
 
 import os
@@ -18,7 +20,6 @@ else:
     from io import open
     from collections import Mapping
 
-from elementum.provider import log, get_setting
 from kodi_six import xbmc, xbmcaddon, xbmcvfs
 
 start_time = time.time()
@@ -58,8 +59,8 @@ def load_providers(path, custom=False):
             update_definitions(provider, providers[provider], custom)
     except Exception as e:
         import traceback
-        log.error("Failed importing providers from %s: %s", path, repr(e))
-        map(log.error, traceback.format_exc().split("\n"))
+        logging.error("Failed importing providers from %s: %s", path, repr(e))
+        map(logging.error, traceback.format_exc().split("\n"))
 
 
 def load_overrides(path, custom=False):
@@ -76,14 +77,14 @@ def load_overrides(path, custom=False):
         if custom:
             sys.path.append(path)
             from overrides import overrides
-            log.debug("Imported overrides: %s", repr(overrides))
+            logging.debug("Imported overrides: %s", repr(overrides))
             for provider in overrides:
                 update_definitions(provider, overrides[provider])
-            log.info("Successfully loaded overrides from %s", os.path.join(path, "overrides.py"))
+            logging.info("Successfully loaded overrides from %s", os.path.join(path, "overrides.py"))
     except Exception as e:
         import traceback
-        log.error("Failed importing %soverrides: %s", "custom " if custom else "", repr(e))
-        map(log.error, traceback.format_exc().split("\n"))
+        logging.error("Failed importing %soverrides: %s", "custom " if custom else "", repr(e))
+        map(logging.error, traceback.format_exc().split("\n"))
 
 
 def update_definitions(provider, definition, custom=False):
@@ -144,10 +145,10 @@ if not os.path.exists(custom_providers):
     try:
         os.makedirs(custom_providers)
     except Exception as e:
-        log.error("Unable to create custom providers folder: %s", repr(e))
+        logging.error("Unable to create custom providers folder: %s", repr(e))
         pass
 for provider_file in glob(os.path.join(custom_providers, "*.json")):
-    log.info("Importing and enabling %s" % provider_file)
+    logging.info("Importing and enabling %s" % provider_file)
     load_providers(provider_file, custom=True)
 
 # Load user's custom overrides
@@ -168,9 +169,9 @@ for provider in definitions:
         if k not in definitions[provider]:
             definitions[provider][k] = v
 
-# Finding the largest provider name for further use in loggers.
+# Finding the largest provider name for further use in logginggers.
 longest = 10
 if len(definitions) > 0:
     longest = len(definitions[sorted(definitions, key=lambda p: len(definitions[p]['name']), reverse=True)[0]]['name'])
 
-log.info("Loading definitions took %fs", time.time() - start_time)
+logging.info("Loading definitions took %fs", time.time() - start_time)

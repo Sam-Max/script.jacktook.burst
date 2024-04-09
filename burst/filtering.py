@@ -5,11 +5,12 @@ Burst filtering class and methods
 """
 
 from __future__ import unicode_literals
+import logging
+from burst.kodi import get_setting
 from future.utils import PY3
 
 import re
 import hashlib
-from elementum.provider import log, get_setting
 from .normalize import normalize_string, remove_accents
 from .providers.definitions import definitions
 from .utils import Magnet, get_int, get_float, clean_number, size_int, get_alias
@@ -59,7 +60,7 @@ class Filtering:
         queries (list): List of queries to be filtered
         extras (list): List of extras to be filtered
         queries_priorities (list): Priorities of the queries
-        info (dict): Payload from Elementum
+        info (dict): Payload from Jacktook
         kodi_language (str): Language code from Kodi if kodi_language setting is enabled
         language_exceptions (list): List of providers for which not to apply ``kodi_language`` setting
         url (str): URL of this filtering request
@@ -154,7 +155,7 @@ class Filtering:
         self.extras = []
         self.queries_priorities = []
 
-        self.info = dict(title="", proxy_url="", internal_proxy_url="", elementum_url="", titles=[])
+        self.info = dict(title="", proxy_url="", internal_proxy_url="", titles=[])
         self.kodi_language = ''
         self.language_exceptions = []
         self.provider_languages = []
@@ -170,7 +171,7 @@ class Filtering:
 
         Args:
             provider (str): Provider ID
-            payload (dict): Elementum search payload
+            payload (dict): Jacktook search payload
         """
         definition = definitions[provider]
         definition = get_alias(definition, get_setting("%s_alias" % provider))
@@ -180,7 +181,7 @@ class Filtering:
             definition = get_alias(definition, definition["tor_dns_alias"])
 
         general_query = definition['general_query'] if 'general_query' in definition and definition['general_query'] else ''
-        log.debug("[%s] General URL: %s%s" % (provider, definition['base_url'], general_query))
+        logging.debug("[%s] General URL: %s%s" % (provider, definition['base_url'], general_query))
         self.info = payload
         self.url = u"%s%s" % (definition['base_url'], general_query)
 
@@ -191,7 +192,7 @@ class Filtering:
 
         Args:
             provider (str): Provider ID
-            payload (dict): Elementum search payload
+            payload (dict): Jacktook search payload
         """
         definition = definitions[provider]
         definition = get_alias(definition, get_setting("%s_alias" % provider))
@@ -201,7 +202,7 @@ class Filtering:
             definition = get_alias(definition, definition["tor_dns_alias"])
 
         movie_query = definition['movie_query'] if 'movie_query' in definition and definition['movie_query'] else ''
-        log.debug("[%s] Movies URL: %s%s" % (provider, definition['base_url'], movie_query))
+        logging.debug("[%s] Movies URL: %s%s" % (provider, definition['base_url'], movie_query))
         if get_setting('separate_sizes', bool):
             self.min_size = get_float(get_setting('min_size_movies'))
             self.max_size = get_float(get_setting('max_size_movies'))
@@ -216,7 +217,7 @@ class Filtering:
 
         Args:
             provider (str): Provider ID
-            payload (dict): Elementum search payload
+            payload (dict): Jacktook search payload
         """
         definition = definitions[provider]
         definition = get_alias(definition, get_setting("%s_alias" % provider))
@@ -226,7 +227,7 @@ class Filtering:
             definition = get_alias(definition, definition["tor_dns_alias"])
 
         show_query = definition['show_query'] if 'show_query' in definition and definition['show_query'] else ''
-        log.debug("[%s] Episode URL: %s%s" % (provider, definition['base_url'], show_query))
+        logging.debug("[%s] Episode URL: %s%s" % (provider, definition['base_url'], show_query))
         if get_setting('separate_sizes', bool):
             self.min_size = get_float(get_setting('min_size_episodes'))
             self.max_size = get_float(get_setting('max_size_episodes'))
@@ -241,7 +242,7 @@ class Filtering:
 
         Args:
             provider (str): Provider ID
-            payload (dict): Elementum search payload
+            payload (dict): Jacktook search payload
         """
         definition = definitions[provider]
         definition = get_alias(definition, get_setting("%s_alias" % provider))
@@ -251,7 +252,7 @@ class Filtering:
             definition = get_alias(definition, definition["tor_dns_alias"])
 
         season_query = definition['season_query'] if 'season_query' in definition and definition['season_query'] else ''
-        log.debug("[%s] Season URL: %s%s" % (provider, definition['base_url'], season_query))
+        logging.debug("[%s] Season URL: %s%s" % (provider, definition['base_url'], season_query))
         if get_setting('separate_sizes', bool):
             self.min_size = get_float(get_setting('min_size_seasons'))
             self.max_size = get_float(get_setting('max_size_seasons'))
@@ -266,7 +267,7 @@ class Filtering:
 
         Args:
             provider (str): Provider ID
-            payload (dict): Elementum search payload
+            payload (dict): Jacktook search payload
         """
         definition = definitions[provider]
         definition = get_alias(definition, get_setting("%s_alias" % provider))
@@ -276,7 +277,7 @@ class Filtering:
             definition = get_alias(definition, definition["tor_dns_alias"])
 
         anime_query = definition['anime_query'] if 'anime_query' in definition and definition['anime_query'] else ''
-        log.debug("[%s] Anime URL: %s%s" % (provider, definition['base_url'], anime_query))
+        logging.debug("[%s] Anime URL: %s%s" % (provider, definition['base_url'], anime_query))
         if get_setting('separate_sizes', bool):
             self.min_size = get_float(get_setting('min_size_episodes'))
             self.max_size = get_float(get_setting('max_size_episodes'))
@@ -391,17 +392,17 @@ class Filtering:
     def information(self, provider):
         """ Debugging method to print keywords and file sizes
         """
-        log.debug('[%s] Accepted resolutions: %s' % (provider, self.resolutions_allow))
-        log.debug('[%s] Accepted release types: %s' % (provider, self.releases_allow))
-        log.debug('[%s] Blocked release types: %s' % (provider, self.releases_deny))
-        log.debug('[%s] Minimum size: %s' % (provider, str(self.min_size) + ' GB'))
-        log.debug('[%s] Maximum size: %s' % (provider, str(self.max_size) + ' GB'))
+        logging.debug('[%s] Accepted resolutions: %s' % (provider, self.resolutions_allow))
+        logging.debug('[%s] Accepted release types: %s' % (provider, self.releases_allow))
+        logging.debug('[%s] Blocked release types: %s' % (provider, self.releases_deny))
+        logging.debug('[%s] Minimum size: %s' % (provider, str(self.min_size) + ' GB'))
+        logging.debug('[%s] Maximum size: %s' % (provider, str(self.max_size) + ' GB'))
 
     def check_sizes(self):
         """ Internal method to make sure size range settings are valid
         """
         if self.min_size > self.max_size:
-            log.warning("Minimum size above maximum, using max size minus 1 GB")
+            logging.warning("Minimum size above maximum, using max size minus 1 GB")
             self.min_size = self.max_size - 1
 
     def read_keywords(self, keywords):
@@ -449,7 +450,7 @@ class Filtering:
                         if not use_language and provider_language and provider_language in self.info['titles']:
                             use_language = provider_language
                         if use_language not in self.info['titles'] or not self.info['titles'][use_language]:
-                            log.info("[%s] Falling back to original title in absence of %s language title" % (provider, use_language))
+                            logging.info("[%s] Falling back to original title in absence of %s language title" % (provider, use_language))
                             use_language = "original"
 
                         if use_language in self.info['titles'] and self.info['titles'][use_language]:
@@ -464,16 +465,16 @@ class Filtering:
                                     title = title.replace(char, "")
                                 title = " ".join(title.split())
 
-                            log.info("[%s] Using translated '%s' title %s" % (provider, use_language,
+                            logging.info("[%s] Using translated '%s' title %s" % (provider, use_language,
                                                                               repr(title)))
                         else:
-                            log.debug("[%s] Skipping the query '%s' due to missing '%s' language title" % (provider, text, use_language))
+                            logging.debug("[%s] Skipping the query '%s' due to missing '%s' language title" % (provider, text, use_language))
                             # If title for specific language cannot be read - cancel this query
                             return ""
                     except Exception as e:
                         import traceback
-                        log.error("%s failed with: %s" % (provider, repr(e)))
-                        map(log.debug, traceback.format_exc().split("\n"))
+                        logging.error("%s failed with: %s" % (provider, repr(e)))
+                        map(logging.debug, traceback.format_exc().split("\n"))
                 text = text.replace('{%s}' % keyword, title)
 
             if 'year' in keyword:
@@ -532,7 +533,7 @@ class Filtering:
 
             if 'absolute_episode' in keyword:
                 if 'absolute_number' not in self.info or not self.info['absolute_number']:
-                    log.debug("Skipping query '%s' due to missing absolute_number" % text)
+                    logging.debug("Skipping query '%s' due to missing absolute_number" % text)
                     return ""
                 if '+' in keyword:
                     keys = keyword.split('+')
@@ -770,11 +771,11 @@ def cleanup_results(results_list):
     filtered_list = []
     for result in results_list:
         if not result['seeds'] and not use_allow_noseeds:
-            log.debug('[%s] Skipping due to no seeds: %s' % (result['provider'][16:-8], repr(result['name'])))
+            logging.debug('[%s] Skipping due to no seeds: %s' % (result['provider'][16:-8], repr(result['name'])))
             continue
 
         if not result['uri']:
-            log.debug('[%s] Skipping due to empty uri: %s' % (result['provider'][16:-8], repr(result)))
+            logging.debug('[%s] Skipping due to empty uri: %s' % (result['provider'][16:-8], repr(result)))
             continue
 
         hash_ = result['info_hash'].upper()
@@ -797,16 +798,16 @@ def cleanup_results(results_list):
         hash_ = result['provider'] + hash_.upper()
 
         # try:
-        #     log.debug("[%s] Hash for %s: %s" % (result['provider'][16:-8], repr(result['name']), hash_))
+        #     logging.debug("[%s] Hash for %s: %s" % (result['provider'][16:-8], repr(result['name']), hash_))
         # except Exception as e:
         #     import traceback
-        #     log.warning("%s logging failed with: %s" % (result['provider'], repr(e)))
-        #     map(log.debug, traceback.format_exc().split("\n"))
+        #     logging.warning("%s loggingging failed with: %s" % (result['provider'], repr(e)))
+        #     map(logging.debug, traceback.format_exc().split("\n"))
 
         if not any(existing == hash_ for existing in hashes):
             filtered_list.append(result)
             hashes.append(hash_)
         else:
-            log.debug('[%s] Skipping due to repeating hash: %s' % (result['provider'][16:-8], repr(result)))
+            logging.debug('[%s] Skipping due to repeating hash: %s' % (result['provider'][16:-8], repr(result)))
 
     return sorted(filtered_list, key=lambda r: (get_int(r['seeds'])), reverse=True)

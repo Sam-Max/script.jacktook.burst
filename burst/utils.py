@@ -4,11 +4,11 @@
 Burst utilities
 """
 
+from burst.kodi import get_setting
 from future.utils import PY2, PY3, iteritems
 
 import os
 import re
-from elementum.provider import get_setting
 from .providers.definitions import definitions, translatePath
 if PY3:
     from urllib.parse import urlparse

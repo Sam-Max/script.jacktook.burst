@@ -4,6 +4,8 @@
 Provider thread methods
 """
 
+import logging
+from burst.kodi import get_setting, set_setting
 from future.utils import PY3, iteritems
 
 import os
@@ -11,7 +13,6 @@ import re
 import json
 import time
 from .client import Client
-from elementum.provider import log, get_setting, set_setting
 from .filtering import cleanup_results
 from .providers.definitions import definitions, longest
 from .utils import ADDON_PATH, get_int, clean_size, get_alias, with_defaults
@@ -23,7 +24,7 @@ else:
     from urllib import quote, unquote
 
 def generate_payload(provider, generator, filtering, verify_name=True, verify_size=True):
-    """ Payload formatter to format results the way Elementum expects them
+    """ Payload formatter to format results the way Jacktook expects them
 
     Args:
         provider        (str): Provider ID
@@ -66,11 +67,11 @@ def generate_payload(provider, generator, filtering, verify_name=True, verify_si
                 "sort_balance": sort_balance
             })
         else:
-            log.debug(filtering.reason)
+            logging.debug(filtering.reason)
 
-    log.debug('[%s] >>>>>> %s would send %d torrents to Elementum <<<<<<<' % (provider, provider, len(results)))
+    logging.debug('[%s] >>>>>> %s would send %d torrents to Jacktook <<<<<<<' % (provider, provider, len(results)))
     results = cleanup_results(results)
-    log.debug('[%s] >>>>>> %s would send %d torrents to Elementum after cleanup <<<<<<<' % (provider, provider, len(results)))
+    logging.debug('[%s] >>>>>> %s would send %d torrents to Jacktook after cleanup <<<<<<<' % (provider, provider, len(results)))
 
     return results
 
@@ -86,13 +87,13 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
         verify_name    (bool): Whether to double-check the results' names match the query or not
         verify_size    (bool): Whether to check the results' file sizes
     """
-    log.debug("[%s] execute_process for %s with %s" % (provider, provider, repr(generator)))
+    logging.debug("[%s] execute_process for %s with %s" % (provider, provider, repr(generator)))
     definition = definitions[provider]
     definition = with_defaults(get_alias(definition, get_setting("%s_alias" % provider)))
 
     client = Client(info=filtering.info, request_charset=definition['charset'], response_charset=definition['response_charset'], is_api='is_api' in definition and definition['is_api'])
     token = None
-    logged_in = False
+    loggingged_in = False
     token_auth = False
     used_queries = set()
 
@@ -104,12 +105,12 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
         if language_exceptions.strip().lower():
             filtering.language_exceptions = re.split(r',\s?', language_exceptions)
 
-    log.debug("[%s] Queries: %s" % (provider, filtering.queries))
-    log.debug("[%s] Extras:  %s" % (provider, filtering.extras))
+    logging.debug("[%s] Queries: %s" % (provider, filtering.queries))
+    logging.debug("[%s] Extras:  %s" % (provider, filtering.extras))
 
     last_priority = 1
     for query, extra, priority in zip(filtering.queries, filtering.extras, filtering.queries_priorities):
-        log.debug("[%s] Before keywords - Query: %s - Extra: %s" % (provider, repr(query), repr(extra)))
+        logging.debug("[%s] Before keywords - Query: %s - Extra: %s" % (provider, repr(query), repr(extra)))
         if has_special:
             # Removing quotes, surrounding {title*} keywords, when title contains special chars
             query = re.sub("[\"']({title.*?})[\"']", '\\1', query)
@@ -124,7 +125,7 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
             continue
         elif priority > last_priority and filtering.results:
             # Skip fallbacks if there are results
-            log.debug("[%s] Skip fallback as there are already results" % provider)
+            logging.debug("[%s] Skip fallback as there are already results" % provider)
             continue
         elif start_time and timeout and time.time() - start_time + 3 >= timeout:
             # Stop doing requests if there is 3 seconds left for the overall task
@@ -141,10 +142,10 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
                 query = quote(py2_encode(query))
                 extra = quote(py2_encode(extra))
         except Exception as e:
-            log.debug("[%s] Could not quote the query (%s): %s" % (provider, query, e))
+            logging.debug("[%s] Could not quote the query (%s): %s" % (provider, query, e))
             pass
 
-        log.debug("[%s] After keywords  - Query: %s - Extra: %s" % (provider, repr(query), repr(extra)))
+        logging.debug("[%s] After keywords  - Query: %s - Extra: %s" % (provider, repr(query), repr(extra)))
         if not query:
             return filtering.results
 
@@ -177,10 +178,10 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
                 data[key] = data[key].replace('EXTRA', extra)
                 data[key] = unquote(data[key])
 
-        log.debug("-   %s query: %s" % (provider, repr(query)))
-        log.debug("--  %s url_search before token: %s" % (provider, repr(url_search)))
-        log.debug("--- %s using POST payload: %s" % (provider, repr(payload)))
-        log.debug("----%s filtering with post_data: %s" % (provider, repr(filtering.post_data)))
+        logging.debug("-   %s query: %s" % (provider, repr(query)))
+        logging.debug("--  %s url_search before token: %s" % (provider, repr(url_search)))
+        logging.debug("--- %s using POST payload: %s" % (provider, repr(payload)))
+        logging.debug("----%s filtering with post_data: %s" % (provider, repr(filtering.post_data)))
 
         # Set search's "title" in filtering to double-check results' names
         if 'filter_title' in definition and definition['filter_title']:
@@ -194,29 +195,29 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
             client.open(url)
 
         if token:
-            log.info('[%s] Reusing existing token' % provider)
+            logging.info('[%s] Reusing existing token' % provider)
             url_search = url_search.replace('TOKEN', token)
         elif 'token' in definition:
             token_url = definition['base_url'] + definition['token']
-            log.debug("[%s] Getting token for %s at %s" % (provider, provider, repr(token_url)))
+            logging.debug("[%s] Getting token for %s at %s" % (provider, provider, repr(token_url)))
             client.open(py2_encode(token_url))
             try:
                 token_data = json.loads(client.content)
             except:
-                log.error('%s: Failed to get token for %s' % (provider, repr(url_search)))
+                logging.error('%s: Failed to get token for %s' % (provider, repr(url_search)))
                 return filtering.results
-            log.debug("[%s] Token response for %s: %s" % (provider, provider, repr(token_data)))
+            logging.debug("[%s] Token response for %s: %s" % (provider, provider, repr(token_data)))
             if 'token' in token_data:
                 token = token_data['token']
-                log.debug("[%s] Got token for %s: %s" % (provider, provider, repr(token)))
+                logging.debug("[%s] Got token for %s: %s" % (provider, provider, repr(token)))
                 url_search = url_search.replace('TOKEN', token)
             else:
-                log.warning('%s: Unable to get token for %s' % (provider, repr(url_search)))
+                logging.warning('%s: Unable to get token for %s' % (provider, repr(url_search)))
 
-        if logged_in:
-            log.info("[%s] Reusing previous login" % provider)
+        if loggingged_in:
+            logging.info("[%s] Reusing previous loggingin" % provider)
         elif token_auth:
-            log.info("[%s] Reusing previous token authorization" % provider)
+            logging.info("[%s] Reusing previous token authorization" % provider)
         elif 'private' in definition and definition['private']:
             username = get_setting('%s_username' % provider, unicode)
             password = get_setting('%s_password' % provider, unicode)
@@ -242,61 +243,61 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
                 client.passkey = passkey
                 url_search = url_search.replace('PASSKEY', passkey)
 
-            elif 'login_object' in definition and definition['login_object']:
-                login_object = None
-                login_headers = None
-                logged_in = skip_auth
+            elif 'loggingin_object' in definition and definition['loggingin_object']:
+                loggingin_object = None
+                loggingin_headers = None
+                loggingged_in = skip_auth
 
                 try:
-                    login_object = definition['login_object'].replace('USERNAME', 'u"%s"' % username).replace('PASSWORD', 'u"%s"' % password)
+                    loggingin_object = definition['loggingin_object'].replace('USERNAME', 'u"%s"' % username).replace('PASSWORD', 'u"%s"' % password)
                 except Exception as e:
-                    log.error("Could not make login object for %s: %s" % (provider, e))
+                    logging.error("Could not make loggingin object for %s: %s" % (provider, e))
                 try:
-                    if 'login_headers' in definition and definition['login_headers']:
-                        login_headers = eval(definition['login_headers'])
+                    if 'loggingin_headers' in definition and definition['loggingin_headers']:
+                        loggingin_headers = eval(definition['loggingin_headers'])
                 except Exception as e:
-                    log.error("Could not make login headers for %s: %s" % (provider, e))
+                    logging.error("Could not make loggingin headers for %s: %s" % (provider, e))
 
                 # TODO generic flags in definitions for those...
                 if 'csrf_token' in definition and definition['csrf_token']:
-                    client.open(definition['root_url'] + definition['login_path'])
+                    client.open(definition['root_url'] + definition['loggingin_path'])
                     if client.content:
                         csrf_token = re.search(r'name=\"_?csrf_token\" value=\"(.*?)\"', client.content)
                         if csrf_token:
-                            login_object = login_object.replace('CSRF_TOKEN', '"%s"' % csrf_token.group(1))
+                            loggingin_object = loggingin_object.replace('CSRF_TOKEN', '"%s"' % csrf_token.group(1))
                         else:
-                            logged_in = True
+                            loggingged_in = True
 
                 if 'token_auth' in definition:
-                    # log.debug("[%s] logging in with: %s" % (provider, login_object))
-                    if client.open(definition['root_url'] + definition['token_auth'], post_data=eval(login_object)):
+                    # logging.debug("[%s] loggingging in with: %s" % (provider, loggingin_object))
+                    if client.open(definition['root_url'] + definition['token_auth'], post_data=eval(loggingin_object)):
                         try:
                             token_data = json.loads(client.content)
                         except:
-                            log.error('%s: Failed to get token from %s' % (provider, definition['token_auth']))
+                            logging.error('%s: Failed to get token from %s' % (provider, definition['token_auth']))
                             return filtering.results
-                        log.debug("[%s] Token response for %s: %s" % (provider, provider, repr(token_data)))
+                        logging.debug("[%s] Token response for %s: %s" % (provider, provider, repr(token_data)))
                         if 'token' in token_data:
                             client.token = token_data['token']
-                            log.debug("[%s] Auth token for %s: %s" % (provider, provider, repr(client.token)))
+                            logging.debug("[%s] Auth token for %s: %s" % (provider, provider, repr(client.token)))
                         else:
-                            log.error('[%s] Unable to get auth token for %s' % (provider, repr(url_search)))
+                            logging.error('[%s] Unable to get auth token for %s' % (provider, repr(url_search)))
                             return filtering.results
-                        log.info('[%s] Token auth successful' % provider)
+                        logging.info('[%s] Token auth successful' % provider)
                         token_auth = True
                     else:
-                        log.error("[%s] Token auth failed with response: %s" % (provider, repr(client.content)))
+                        logging.error("[%s] Token auth failed with response: %s" % (provider, repr(client.content)))
                         return filtering.results
-                elif not logged_in and client.login(definition['root_url'], definition['login_path'],
-                                                    eval(login_object), login_headers, definition['login_failed'], definition['login_prerequest']):
-                    log.info('[%s] Login successful' % provider)
-                    logged_in = True
-                elif not logged_in:
-                    log.error("[%s] Login failed: %s", provider, client.status)
-                    log.debug("[%s] Failed login content: %s", provider, repr(client.content))
+                elif not loggingged_in and client.loggingin(definition['root_url'], definition['loggingin_path'],
+                                                    eval(loggingin_object), loggingin_headers, definition['loggingin_failed'], definition['loggingin_prerequest']):
+                    logging.info('[%s] loggingin successful' % provider)
+                    loggingged_in = True
+                elif not loggingged_in:
+                    logging.error("[%s] loggingin failed: %s", provider, client.status)
+                    logging.debug("[%s] Failed loggingin content: %s", provider, repr(client.content))
                     return filtering.results
 
-                if logged_in:
+                if loggingged_in:
                     if provider == 'hd-torrents':
                         client.open(definition['root_url'] + '/torrents.php')
                         csrf_token = re.search(r'name="csrfToken" value="(.*?)"', client.content)
@@ -304,12 +305,12 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
                             url_search = url_search.replace("CSRF_TOKEN", csrf_token.group(1))
                     client.save_cookies()
 
-        log.info("[%s] >  %s search URL: %s" % (provider, definition['name'].rjust(longest), url_search))
+        logging.info("[%s] >  %s search URL: %s" % (provider, definition['name'].rjust(longest), url_search))
 
         headers = None
         if 'headers' in definition and definition['headers']:
             headers = eval(definition['headers'])
-            log.info("[%s] >  %s headers: %s" % (provider, definition['name'].rjust(longest), headers))
+            logging.info("[%s] >  %s headers: %s" % (provider, definition['name'].rjust(longest), headers))
 
         client.open(py2_encode(url_search), post_data=payload, get_data=data, headers=headers)
         try:
@@ -320,5 +321,5 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
                                 verify_name,
                                 verify_size))
         except Exception as e:
-            log.error("[%s] Error from payload generator: %s", provider, e)
+            logging.error("[%s] Error from payload generator: %s", provider, e)
     return filtering.results
