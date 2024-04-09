@@ -1,12 +1,4 @@
-# Elementum Burst
-
-A burst of providers.
-
-Support
-----------
-### Development of *script.elementum.burst* is stopped! 
-- Do not expect any support, help and other things like that.
-- Source is open, so you can fork everything.
+# Jacktook Burst, a fork of Elementum Burst adapted for using on [Jacktook](https://github.com/Sam-Max/plugin.video.jacktook) Addon
 
 
 ### Features
@@ -16,7 +8,7 @@ Support
 - No extra add-ons to install, all providers are included
 - No extra service running in the background
 - Easy settings to enable or disable providers and filters
-- First-class support with Elementum, and only Elementum (don't even ask)
+- First-class support with Jacktook, and only Jacktook (ask if you want to adapt to your addon)
 - Simple definitions-based architecture with overrides
 - Clean, PEP8 compliant code
 
@@ -24,8 +16,6 @@ Support
 ### Installation
 
 **IMPORTANT: Disable the Magnetic Quasar/Elementum Connector before anything else.**
-
-Get the latest release from https://burst.surge.sh
 
 Install the add-on and enjoy.
 
@@ -40,7 +30,7 @@ Default fixes and overrides are located in `burst/providers/definitions.py`, and
 although you can edit that file directly, keep in mind that you will lose your
 changes on the next update. You can override existing definitions by adding
 another file named `overrides.py` in your profile folder, ie. in
-`~/.kodi/userdata/addon_data/script.elementum.burst/overrides.py`. Put all your
+`~/.kodi/userdata/addon_data/script.jacktook.burst/overrides.py`. Put all your
 overrides in the `overrides` variable within that file, as such:
 ```
 overrides = {
@@ -54,7 +44,7 @@ Adding a custom provider is similar, although you'll be using a JSON file, per
 provider or with all your custom providers, unless you add them all in your
 custom `overrides.py`, which also works. Simply create a file with the `.json`
 extension under the `providers` folder in your profile, ie. in
-`~/.kodi/userdata/addon_data/script.elementum.burst/providers/nice_provider.json`
+`~/.kodi/userdata/addon_data/script.jacktook.burst/providers/nice_provider.json`
 and make sure it follows the format below (hopefully with `"subpage": false`):
 ```
 {
@@ -104,14 +94,9 @@ and make sure it follows the format below (hopefully with `"subpage": false`):
 }
 ```
 
-### Release
-
-Release is done by running `release.sh` script, that collects zip artifacts and push it as a release (if we are on the tag).
-
-*Note*: Tag version should be the same as the plugin version in `addon.xml`.
-
 
 ### Credits
+- @elgatito for Elementum Burst
 - @scakemyer for initial Quasar Burst module!
 - @mancuniancol for all his work on Magnetic, this add-on wouldn't have been
   possible without him.
