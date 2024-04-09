@@ -147,7 +147,7 @@ msgid "Shows"
 msgstr ""
 
 msgctxt "#32084"
-msgid "Use Public DNS (Google, Quad9, Opennic)"
+msgid "Use Public DNS (Google, Quad9"
 msgstr ""
 
 msgctxt "#32085"

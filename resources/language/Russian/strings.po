@@ -147,8 +147,8 @@ msgid "Shows"
 msgstr "Сериалы"
 
 msgctxt "#32084"
-msgid "Use Public DNS (Google, Quad9, Opennic)"
-msgstr "Использовать публичные DNS (Google, Quad9, Opennic)"
+msgid "Use Public DNS (Google, Quad9)"
+msgstr "Использовать публичные DNS (Google, Quad9)"
 
 msgctxt "#32085"
 msgid "For Developers"
