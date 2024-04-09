@@ -1,11 +1,11 @@
 # Kodi Media Center language file
-# Add-on Name: Elementum Burst
-# Add-on id: script.elementum.burst
+# Add-on Name: Jacktook Burst
+# Add-on id: script.jacktook.burst
 # Add-on provider: elgatito
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Elementum Burst\n"
+"Project-Id-Version: Jacktook Burst\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-09-05 05:53-0400\n"
 "PO-Revision-Date: 2017-04-21 19:23-0200\n"
@@ -114,8 +114,8 @@ msgid "Search timeout (seconds)"
 msgstr "Keresési időkorlát (másodpercekben)"
 
 msgctxt "#32071"
-msgid "Timeout setting must be lower than Elementum's"
-msgstr "Az időkorlát beállításnak muszáj kisebbnek lennie a Elementum!"
+msgid "Timeout setting must be lower than Jacktook's"
+msgstr "Az időkorlát beállításnak muszáj kisebbnek lennie a Jacktook!"
 
 msgctxt "#32076"
 msgid "Passkey"
@@ -238,7 +238,7 @@ msgid "Use proxy settings"
 msgstr ""
 
 msgctxt "#32107"
-msgid "From Elementum settings"
+msgid "From Jacktook settings"
 msgstr ""
 
 msgctxt "#32108"
@@ -302,11 +302,11 @@ msgid "Balanced"
 msgstr ""
 
 msgctxt "#32124"
-msgid "Automatically adjust timeout according to Elementum settings"
+msgid "Automatically adjust timeout according to Jacktook settings"
 msgstr ""
 
 msgctxt "#32125"
-msgid "Proxy http requests with Elementum"
+msgid "Proxy http requests with Jacktook"
 msgstr ""
 
 msgctxt "#32126"
@@ -358,11 +358,11 @@ msgid "SOCKS5h"
 msgstr ""
 
 msgctxt "#32138"
-msgid "From Elementum settings (resolve hosts by proxy)"
+msgid "From Jacktook settings (resolve hosts by proxy)"
 msgstr ""
 
 msgctxt "#32139"
-msgid "First enable built-in HTTP proxy in Elementum"
+msgid "First enable built-in HTTP proxy in Jacktook"
 msgstr ""
 
 msgctxt "#32140"
@@ -370,7 +370,7 @@ msgid "Use Tor domain alias"
 msgstr ""
 
 msgctxt "#32141"
-msgid "First set SOCKS both in Burst&Elementum or proxy http via Elementum"
+msgid "First set SOCKS both in Burst&Jacktook or proxy http via Jacktook"
 msgstr ""
 
 msgctxt "#32142"

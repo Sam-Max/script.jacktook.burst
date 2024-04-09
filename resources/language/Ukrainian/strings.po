@@ -1,11 +1,11 @@
 # Kodi Media Center language file
-# Add-on Name: Elementum Burst
-# Add-on id: script.elementum.burst
+# Add-on Name: Jacktook Burst
+# Add-on id: script.jacktook.burst
 # Add-on provider: elgatito
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Elementum Burst\n"
+"Project-Id-Version: Jacktook Burst\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-09-05 05:53-0400\n"
 "PO-Revision-Date: 2017-02-13 10:38-0500\n"
@@ -115,8 +115,8 @@ msgid "Search timeout (seconds)"
 msgstr "Час очікування для пошуку (секунди)"
 
 msgctxt "#32071"
-msgid "Timeout setting must be lower than Elementum's"
-msgstr "Час очікування повинен бути меншим, ніж у Elementum"
+msgid "Timeout setting must be lower than Jacktook's"
+msgstr "Час очікування повинен бути меншим, ніж у Jacktook"
 
 msgctxt "#32076"
 msgid "Passkey"
@@ -239,8 +239,8 @@ msgid "Use proxy settings"
 msgstr "Налаштування проксі"
 
 msgctxt "#32107"
-msgid "From Elementum settings"
-msgstr "З налаштувань Elementum"
+msgid "From Jacktook settings"
+msgstr "З налаштувань Jacktook"
 
 msgctxt "#32108"
 msgid "Custom settings"
@@ -303,12 +303,12 @@ msgid "Balanced"
 msgstr "Баланс"
 
 msgctxt "#32124"
-msgid "Automatically adjust timeout according to Elementum settings"
+msgid "Automatically adjust timeout according to Jacktook settings"
 msgstr "Автоматично регулювати час очікування"
 
 msgctxt "#32125"
-msgid "Proxy http requests with Elementum"
-msgstr "Використовувати Elementum як http проксі"
+msgid "Proxy http requests with Jacktook"
+msgstr "Використовувати Jacktook як http проксі"
 
 msgctxt "#32126"
 msgid "Polish"
@@ -359,20 +359,20 @@ msgid "SOCKS5h"
 msgstr ""
 
 msgctxt "#32138"
-msgid "From Elementum settings (resolve hosts by proxy)"
-msgstr "З налаштувань Elementum (вирішувати вузли по проксі)"
+msgid "From Jacktook settings (resolve hosts by proxy)"
+msgstr "З налаштувань Jacktook (вирішувати вузли по проксі)"
 
 msgctxt "#32139"
-msgid "First enable built-in HTTP proxy in Elementum"
-msgstr "Спочатку ввімкніть вбудований HTTP проксі в Elementum"
+msgid "First enable built-in HTTP proxy in Jacktook"
+msgstr "Спочатку ввімкніть вбудований HTTP проксі в Jacktook"
 
 msgctxt "#32140"
 msgid "Use Tor domain alias"
 msgstr "Використовувати домени в Tor"
 
 msgctxt "#32141"
-msgid "First set SOCKS both in Burst&Elementum or proxy http via Elementum"
-msgstr "Спочатку вкажіть SOCKS в Burst та Elementum або http проксі через Elementum"
+msgid "First set SOCKS both in Burst&Jacktook or proxy http via Jacktook"
+msgstr "Спочатку вкажіть SOCKS в Burst та Jacktook або http проксі через Jacktook"
 
 msgctxt "#32142"
 msgid "Arabic"
