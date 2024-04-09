@@ -192,7 +192,7 @@ def get_languages(langs):
             if res:
                 res += ", "
 
-            res += "$ADDON[script.elementum.burst " + str(languages[lang]) + "]"
+            res += "$ADDON[script.jacktook.burst " + str(languages[lang]) + "]"
 
     if res:
         res = "[" + res + "]"
