@@ -1,7 +1,13 @@
+import sys
 from kodi_six import xbmcaddon
 from kodi_six.utils import py2_decode
-import six
 
+PY3 = sys.version_info[0] == 3
+
+if PY3:
+    text_type = str
+else:
+    text_type = unicode
 
 ADDON = xbmcaddon.Addon()
 ADDON_ID = ADDON.getAddonInfo("id")
@@ -14,7 +20,7 @@ def get_setting(key, converter=str, choices=None):
     value = ADDON.getSetting(id=key)
     if isinstance(choices, (list, tuple)):
         return choices[int(value)]
-    elif converter is six.text_type or converter is str:
+    elif converter is text_type or converter is str:
         return py2_decode(value)
     elif converter is bool:
         return value == 'true'
