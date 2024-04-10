@@ -56,14 +56,12 @@ urllib3.disable_warnings()
 public_dns_list = get_setting("public_dns_list", unicode)
 opennic_dns_list = get_setting("opennic_dns_list", unicode)
 proxy_enabled = get_setting("proxy_enabled", bool)
-proxy_use_type = get_setting("proxy_use_type", int)
 proxy_host = get_setting("proxy_host", unicode)
 proxy_port = get_setting("proxy_port", int)
 proxy_loggingin = get_setting("proxy_login", unicode)
 proxy_password = get_setting("proxy_password", unicode)
 proxy_type = get_setting("proxy_type", int)
 use_public_dns = get_setting("use_public_dns", bool)
-use_tor_dns = get_setting("use_tor_dns", bool)
 
 def MyResolver(host):
     if '.' not in host:
@@ -159,7 +157,6 @@ class Client:
         # Parsing proxy information
         proxy = {
             'enabled': proxy_enabled,
-            'use_type': proxy_use_type,
             'type': proxy_types[0],
             'host': proxy_host,
             'port': proxy_port,
@@ -176,17 +173,12 @@ class Client:
             connection.create_connection = patched_create_connection
 
         if proxy['enabled']:
-            if proxy['use_type'] == 0 and info and "proxy_url" in info:
-                logging.debug("Setting proxy from Jacktook: %s" % (info["proxy_url"]))
+            logging.debug("Setting proxy with custom settings: %s" % (repr(proxy)))
 
-                self.proxy_url = info["proxy_url"]
-            elif proxy['use_type'] == 1:
-                logging.debug("Setting proxy with custom settings: %s" % (repr(proxy)))
-
-                if proxy['loggingin'] or proxy['password']:
-                    self.proxy_url = "{0}://{1}:{2}@{3}:{4}".format(proxy['type'], proxy['loggingin'], proxy['password'], proxy['host'], proxy['port'])
-                else:
-                    self.proxy_url = "{0}://{1}:{2}".format(proxy['type'], proxy['host'], proxy['port'])
+            if proxy['login'] or proxy['password']:
+                self.proxy_url = "{0}://{1}:{2}@{3}:{4}".format(proxy['type'], proxy['loggingin'], proxy['password'], proxy['host'], proxy['port'])
+            else:
+                self.proxy_url = "{0}://{1}:{2}".format(proxy['type'], proxy['host'], proxy['port'])
 
             if self.proxy_url:
                 self.session.proxies = {

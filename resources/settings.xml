@@ -2,11 +2,9 @@
 <settings>
   <!-- General -->
   <category label="32000">
-    <setting label="32084" id="use_public_dns" type="bool" default="false" enable="eq(-2,false) + eq(3,false)" />
-      <setting id="public_dns_list" label="32093" type="text" default="8.8.8.8, 8.8.4.4, 9.9.9.9" enable="eq(-1,true) + eq(-3,false)" />
-      <setting id="opennic_dns_list" label="32094" type="text" default="163.172.168.171, 152.70.189.130, 167.86.112.174" enable="eq(-2,true) + eq(-4,false)" />
-    <setting label="32140" id="use_tor_dns" type="bool" default="false" enable="eq(-3,false)" />
-    <setting id="tor_dns_help" label="32141" type="text" enable="false" subsetting="true" />
+    <setting label="32084" id="use_public_dns" type="bool" default="false"/>
+      <setting id="public_dns_list" label="32093" type="text" default="8.8.8.8, 8.8.4.4, 9.9.9.9"/>
+      <setting id="opennic_dns_list" label="32094" type="text" default="163.172.168.171, 152.70.189.130, 167.86.112.174"/>
 
     <setting type="sep"/>
     <setting label="32143" id="overrides_path" type="folder" default="special://profile/addon_data/script.jacktook.burst/os.path.join(translatePath(ADDON_PROFILE), 'overrides.json')" source="auto" option="writeable" />
@@ -18,9 +16,7 @@
     <setting label="32119" id="sort_by" type="enum" lvalues="32120|32121|32122|32123" default="3" />
 
     <setting type="sep"/>
-    <setting label="32124" id="auto_timeout" type="bool" default="true" />
-    <setting label="32070" id="timeout" type="slider" default="25" option="int" range="3,1,180" enable="eq(-1,false)" />
-    <setting label="32071" id="timeout_help" type="text" enable="false" subsetting="true" />
+    <setting label="32070" id="timeout" type="slider" default="25" option="int" range="3,1,180" />
   </category>
 
   <!-- Providers -->
@@ -361,12 +357,11 @@
   <category label="32095">
       <setting label="32095" type="lsep" />
       <setting id="proxy_enabled" label="32096" type="bool" default="false" />
-        <setting id="proxy_use_type" label="32106" type="enum" default="2" subsetting="true" lvalues="32107|32108|32138" enable="eq(-1,true)" />
-        <setting id="proxy_type" label="32101" type="enum" default="5" subsetting="true" lvalues="32102|32103|32104|32105|32136|32137" enable="eq(-1,1)" />
-        <setting id="proxy_host" label="32097" type="text" default="" subsetting="true" enable="eq(-2,1)" />
-        <setting id="proxy_port" label="32098" type="number" default="1080" subsetting="true" enable="eq(-3,1)" />
-        <setting id="proxy_login" label="32099" type="text" default="" subsetting="true" enable="eq(-4,1)" />
-        <setting id="proxy_password" label="32100" type="text" default="" option="hidden" subsetting="true" enable="eq(-5,1)" />
+        <setting id="proxy_type" label="32101" type="enum" default="5" subsetting="true" lvalues="32102|32103|32104|32105|32136|32137" enable="eq(-1,true)" />
+        <setting id="proxy_host" label="32097" type="text" default="" subsetting="true" enable="eq(-1,1)" />
+        <setting id="proxy_port" label="32098" type="number" default="1080" subsetting="true" enable="eq(-2,1)" />
+        <setting id="proxy_login" label="32099" type="text" default="" subsetting="true" enable="eq(-3,1)" />
+        <setting id="proxy_password" label="32100" type="text" default="" option="hidden" subsetting="true" enable="eq(-4,1)" />
   </category>
 
   <!-- Additional -->
