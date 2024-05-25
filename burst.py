@@ -21,11 +21,11 @@ def general_payload(query):
     }
 
 
-def movie_payload(imdb_id, title, year, titles=""):
+def movie_payload(id, title, year, titles=""):
     return {
         "silent": False,
         "skip_auth": False,
-        "imdb_id": imdb_id,
+        "imdb_id": id,
         "title": title,
         "titles": titles,
         "year": year,
@@ -33,11 +33,11 @@ def movie_payload(imdb_id, title, year, titles=""):
 
 
 
-def tv_payload(imdb_id, title, titles="", season=None, episode=None, year=None):
+def tv_payload(id, title, titles="", season=None, episode=None, year=None):
     return {
         "silent": False,
         "skip_auth": False,
-        "imdb_id": imdb_id,
+        "imdb_id": id,
         "title": title,
         "titles": titles,
         "season": season,
@@ -45,22 +45,22 @@ def tv_payload(imdb_id, title, titles="", season=None, episode=None, year=None):
         "year": year,
     }
 
-def season_payload(imdb_id, title, season, titles="", year=None):
+def season_payload(id, title, season, titles="", year=None):
     return {
         "silent": False,
         "skip_auth": False,
-        "imdb_id": imdb_id,
+        "imdb_id": id,
         "title": title,
         "titles": titles,
         "season": season,
         "year": year,
     }
 
-def episode_payload(imdb_id, title, season, episode, titles="", year=None):
+def episode_payload(id, title, season, episode, titles="", year=None):
     return {
         "silent": False,
         "skip_auth": False,
-        "imdb_id": imdb_id,
+        "imdb_id": id,
         "title": title,
         "titles": titles,
         "season": season,
@@ -86,36 +86,36 @@ def convert_results_jacktook(obj):
     return result
 
 
-class RajadaJacktookProvider(Provider):
+class JacktookProvider(Provider):
     def search(self, query):
         s = search(general_payload(query), "general")
         s = convert_results_jacktook(s)
         return s
 
-    def search_movie(self, imdb_id, title, titles, year):
-        s = search(movie_payload(imdb_id, title, year), "movie")
+    def search_movie(self, id, title, titles, year):
+        s = search(movie_payload(id, title, year), "movie")
         s = convert_results_jacktook(s)
         return s
 
-    def search_show(self, imdb_id, show_title, titles, year):
+    def search_show(self, id, show_title, titles, year):
         s = search(
-            tv_payload(imdb_id, show_title, year=year), "season"
+            tv_payload(id, show_title, year=year), "season"
         )
         s = convert_results_jacktook(s)
         return s
 
-    def search_season(self, imdb_id, show_title, season_number, titles):
+    def search_season(self, id, show_title, season_number, titles):
         s = search(
-            season_payload(imdb_id, show_title, season_number), "season"
+            season_payload(id, show_title, season_number), "season"
         )
         s = convert_results_jacktook(s)
         return s
 
     def search_episode(
-        self, imdb_id, show_title, season_number, episode_number, titles
+        self, id, show_title, season_number, episode_number, titles
     ):
         s = search(
-            episode_payload(imdb_id, show_title, season_number, episode_number), "episode"
+            episode_payload(id, show_title, season_number, episode_number), "episode"
         )
         s = convert_results_jacktook(s)
         return s
@@ -142,4 +142,4 @@ if len(sys.argv) >= 2:
 if action and "clear_cookies" in action:
     clear_cookies()
 else:
-    RajadaJacktookProvider().register()
+    JacktookProvider().register()
