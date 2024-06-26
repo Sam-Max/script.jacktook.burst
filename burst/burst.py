@@ -264,6 +264,7 @@ def extract_torrents(provider, client):
     key_search = get_search_query(definition, "key")
     row_search = get_search_query(definition, "row")
     name_search = get_search_query(definition, "name")
+    description_search = get_search_query(definition, "description")
     torrent_search = get_search_query(definition, "torrent")
     info_hash_search = get_search_query(definition, "infohash")
     size_search = get_search_query(definition, "size")
@@ -352,6 +353,7 @@ def extract_torrents(provider, client):
         try:
             id = eval(id_search) if id_search else ""
             name = eval(name_search) if name_search else ""
+            description = eval(description_search) if description_search else ""
             torrent = eval(torrent_search) if torrent_search else ""
             size = eval(size_search) if size_search else ""
             seeds = eval(seeds_search) if seeds_search else ""
@@ -365,6 +367,7 @@ def extract_torrents(provider, client):
             if debug_parser:
                 logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'id', id_search, id))
                 logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'name', name_search, name))
+                logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'description', description_search, description))
                 logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'torrent', torrent_search, torrent))
                 logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'size', size_search, size))
                 logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'seeds', seeds_search, seeds))
@@ -373,6 +376,12 @@ def extract_torrents(provider, client):
                     logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'info_hash', info_hash_search, info_hash))
                 if referer_search:
                     logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'info_hash', referer_search, referer))
+
+            if description:
+                name = '{} ({})'.format(name, description)
+
+            if description:
+                name = '{} ({})'.format(name, description)
 
             # Pass client cookies with torrent if private
             if not torrent.startswith('magnet'):
