@@ -62,7 +62,7 @@ def generate_payload(provider, generator, filtering, verify_name=True, verify_si
                 "seeds": sort_seeds,
                 "peers": get_int(peers),
                 "language": definition["language"] if 'language' in definition else 'en',
-                "provider": '[COLOR %s]%s[/COLOR]' % (definition['color'], definition['name']),
+                "provider": definition['name'],
                 "icon": os.path.join(ADDON_PATH, 'burst', 'providers', 'icons', '%s.png' % provider),
                 "sort_resolution": sort_resolution,
                 "sort_balance": sort_balance
