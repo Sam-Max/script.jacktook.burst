@@ -7,8 +7,7 @@ Burst processing thread
 from __future__ import unicode_literals
 import logging
 from burst.kodi import get_setting, set_setting
-from future.utils import PY3
-
+from future.utils import PY3, iteritems
 import re
 import json
 import time
@@ -30,7 +29,7 @@ else:
     from urllib import unquote
 
 from .parser.ehp import Html
-from kodi_six import xbmc, xbmcgui, xbmcaddon, py2_encode
+from kodi_six import xbmc, xbmcgui, py2_encode
 
 try:
     from Cryptodome.Cipher import AES
@@ -44,6 +43,8 @@ from .providers.definitions import definitions, longest
 from .filtering import apply_filters, Filtering, cleanup_results
 from .client import USER_AGENT, Client
 from .utils import ADDON_ICON, notify, translation, sizeof, get_icon_path, get_enabled_providers, get_alias, size_int
+
+logging = logging.getLogger(__name__) 
 
 provider_names = []
 provider_results = []
@@ -687,19 +688,19 @@ def cookie_sync():
         return
 
     if not hasCrypto:
-        log.error("Cryptodome Python module is not available for current Kodi version")
+        logging.error("Cryptodome Python module is not available for current Kodi version")
         return
 
     cookie_check_defaults()
 
-    log.debug("Fetching cookies from Github")
+    logging.debug("Fetching cookies from Github")
 
     global cookie_sync_gist_id
     # Try to get url to a Gist's file first, if we have Gist ID
     if not cookie_sync_gist_id or not cookie_fetch_fileurl():
         # Try to get both Gist ID and Gist's file url
         if not cookie_fetch_gist_id():
-            log.error("Could not fetch gist id for cookie-sync")
+            logging.error("Could not fetch gist id for cookie-sync")
             return
 
     set_setting('cookie_sync_gist_id', cookie_sync_gist_id)
@@ -710,7 +711,7 @@ def cookie_sync():
         return
 
     try:
-        log.debug("Adding %d cookies to http client" % (len(cookies)))
+        logging.debug("Adding %d cookies to http client" % (len(cookies)))
         client = Client()
         client._read_cookies()
 
@@ -719,7 +720,7 @@ def cookie_sync():
 
         client.save_cookies()
     except Exception as e:
-        log.error("Failed adding cookies with: %s" % (repr(e)))
+        logging.error("Failed adding cookies with: %s" % (repr(e)))
 
 def cookie_check_defaults():
     global cookie_sync_filename
@@ -747,7 +748,7 @@ def cookie_fetch_gist_id():
 
                 return True
     except Exception as e:
-        log.error("Gist list failed with: %s" % (repr(e)))
+        logging.error("Gist list failed with: %s" % (repr(e)))
 
     return False
 
@@ -770,7 +771,7 @@ def cookie_fetch_fileurl():
 
             return True
     except Exception as e:
-        log.error("Gist get failed with: %s" % (repr(e)))
+        logging.error("Gist get failed with: %s" % (repr(e)))
 
     return False
 
@@ -810,12 +811,12 @@ def cookie_fetch_file():
                 cookies.append(cookie)
                 cookies_count = cookies_count + 1
 
-        log.debug("Cookie sync fetched for %d domains, %d cookies" % (domains_count, cookies_count))
+        logging.debug("Cookie sync fetched for %d domains, %d cookies" % (domains_count, cookies_count))
         return cookies
     except Exception as e:
-        log.error("Gist file download failed with: %s" % (repr(e)))
+        logging.error("Gist file download failed with: %s" % (repr(e)))
         import traceback
-        map(log.error, traceback.format_exc().split("\n"))
+        map(logging.error, traceback.format_exc().split("\n"))
 
     return None
 

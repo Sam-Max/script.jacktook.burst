@@ -30,6 +30,9 @@ from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 from requests.cookies import create_cookie
 
+
+logging = logging.getLogger(__name__) 
+
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"
 if os.name == 'nt':
     USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
@@ -59,7 +62,7 @@ opennic_dns_list = get_setting("opennic_dns_list", unicode)
 proxy_enabled = get_setting("proxy_enabled", bool)
 proxy_host = get_setting("proxy_host", unicode)
 proxy_port = get_setting("proxy_port", int)
-proxy_loggingin = get_setting("proxy_login", unicode)
+proxy_login = get_setting("proxy_login", unicode)
 proxy_password = get_setting("proxy_password", unicode)
 proxy_type = get_setting("proxy_type", int)
 use_public_dns = get_setting("use_public_dns", bool)
@@ -163,7 +166,7 @@ class Client:
             'type': proxy_types[0],
             'host': proxy_host,
             'port': proxy_port,
-            'loggingin': proxy_loggingin,
+            'login': proxy_login,
             'password': proxy_password,
         }
 
@@ -179,7 +182,7 @@ class Client:
             logging.debug("Setting proxy with custom settings: %s" % (repr(proxy)))
 
             if proxy['login'] or proxy['password']:
-                self.proxy_url = "{0}://{1}:{2}@{3}:{4}".format(proxy['type'], proxy['loggingin'], proxy['password'], proxy['host'], proxy['port'])
+                self.proxy_url = "{0}://{1}:{2}@{3}:{4}".format(proxy['type'], proxy['login'], proxy['password'], proxy['host'], proxy['port'])
             else:
                 self.proxy_url = "{0}://{1}:{2}".format(proxy['type'], proxy['host'], proxy['port'])
 
@@ -334,16 +337,16 @@ class Client:
 
         return self.status == 200
 
-    def loggingin(self, root_url, url, data, headers, fails_with, prerequest=None):
-        """ loggingin wrapper around ``open``
+    def login(self, root_url, url, data, headers, fails_with, prerequest=None):
+        """ login wrapper around ``open``
 
         Args:
             url        (str): The URL to open
-            data      (dict): POST loggingin data
+            data      (dict): POST login data
             fails_with (str): String that must **not** be included in the response's content
 
         Returns:
-            bool: Whether or not loggingin was successful
+            bool: Whether or not login was successful
         """
         if not url.startswith('http'):
             url = root_url + url
@@ -360,7 +363,7 @@ class Client:
                     self.status = 'Wrong username or password'
                     return False
             except Exception as e:
-                logging.debug("loggingin failed with: %s" % e)
+                logging.debug("login failed with: %s" % e)
                 try:
                     if fails_with in self.content.decode('utf-8'):
                         self.status = 'Wrong username or password'

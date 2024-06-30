@@ -24,6 +24,10 @@ else:
     from urllib import quote, unquote
     from urlparse import urlparse
 
+
+logging = logging.getLogger(__name__)    
+
+
 def generate_payload(provider, generator, filtering, verify_name=True, verify_size=True):
     """ Payload formatter to format results the way Jacktook expects them
 
@@ -94,7 +98,7 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
 
     client = Client(info=filtering.info, request_charset=definition['charset'], response_charset=definition['response_charset'], is_api='is_api' in definition and definition['is_api'])
     token = None
-    loggingged_in = False
+    logged_in = False
     token_auth = False
     used_queries = set()
 
@@ -151,7 +155,9 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
             return filtering.results
 
         url_search = filtering.url.replace('QUERY', query)
+        logging.error(url_search)
         url_search = url_search.replace('EXTRA', extra)
+        logging.error(url_search)
 
         url_search = url_search.replace(' ', definition['separator'])
         if definition['separator'] != '%20':
@@ -215,13 +221,16 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
             else:
                 logging.warning('%s: Unable to get token for %s' % (provider, repr(url_search)))
 
-        if loggingged_in:
-            logging.info("[%s] Reusing previous loggingin" % provider)
+        if logged_in:
+            logging.info("[%s] Reusing previous login" % provider)
         elif token_auth:
             logging.info("[%s] Reusing previous token authorization" % provider)
         elif 'private' in definition and definition['private']:
+            logging.error("private")
             username = get_setting('%s_username' % provider, unicode)
+            logging.error(username)
             password = get_setting('%s_password' % provider, unicode)
+            logging.error(password)
             passkey = get_setting('%s_passkey' % provider, unicode)
             if not username and not password and not passkey:
                 for addon_name in ('script.magnetic.%s' % provider, 'script.magnetic.%s-mc' % provider):
@@ -244,30 +253,30 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
                 client.passkey = passkey
                 url_search = url_search.replace('PASSKEY', passkey)
 
-            elif 'loggingin_object' in definition and definition['loggingin_object']:
-                loggingin_object = None
-                loggingin_headers = None
-                loggingged_in = skip_auth
+            elif 'login_object' in definition and definition['login_object']:
+                login_object = None
+                login_headers = None
+                logged_in = skip_auth
 
                 try:
-                    loggingin_object = definition['loggingin_object'].replace('USERNAME', 'u"%s"' % username).replace('PASSWORD', 'u"%s"' % password)
+                    login_object = definition['login_object'].replace('USERNAME', 'u"%s"' % username).replace('PASSWORD', 'u"%s"' % password)
                 except Exception as e:
-                    logging.error("Could not make loggingin object for %s: %s" % (provider, e))
+                    logging.error("Could not make login object for %s: %s" % (provider, e))
                 try:
-                    if 'loggingin_headers' in definition and definition['loggingin_headers']:
-                        loggingin_headers = eval(definition['loggingin_headers'])
+                    if 'login_headers' in definition and definition['login_headers']:
+                        login_headers = eval(definition['login_headers'])
                 except Exception as e:
-                    logging.error("Could not make loggingin headers for %s: %s" % (provider, e))
+                    logging.error("Could not make login headers for %s: %s" % (provider, e))
 
                 # TODO generic flags in definitions for those...
                 if 'csrf_token' in definition and definition['csrf_token']:
-                    client.open(definition['root_url'] + definition['loggingin_path'])
+                    client.open(definition['root_url'] + definition['login_path'])
                     if client.content:
                         csrf_token = re.search(r'name=\"_?csrf_token\" value=\"(.*?)\"', client.content)
                         if csrf_token:
-                            loggingin_object = loggingin_object.replace('CSRF_TOKEN', '"%s"' % csrf_token.group(1))
+                            login_object = login_object.replace('CSRF_TOKEN', '"%s"' % csrf_token.group(1))
                         else:
-                            loggingged_in = True
+                            logged_in = True
 
                 if not logged_in and 'login_cookie' in definition and definition['login_cookie']:
                     cookie_domain = '{uri.netloc}'.format(uri=urlparse(definition['root_url']))
@@ -276,11 +285,10 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
                     client._read_cookies()
                     if client.cookie_exists(definition['login_cookie'], urlparse(definition['root_url']).netloc):
                         logged_in = True
-                        log.info("[%s] Using Cookie sync for authentication" % (provider))
+                        logging.info("[%s] Using Cookie sync for authentication" % (provider))
 
                 if 'token_auth' in definition:
-                    # logging.debug("[%s] loggingging in with: %s" % (provider, loggingin_object))
-                    if client.open(definition['root_url'] + definition['token_auth'], post_data=eval(loggingin_object)):
+                    if client.open(definition['root_url'] + definition['token_auth'], post_data=eval(login_object)):
                         try:
                             token_data = json.loads(client.content)
                         except:
@@ -298,16 +306,16 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
                     else:
                         logging.error("[%s] Token auth failed with response: %s" % (provider, repr(client.content)))
                         return filtering.results
-                elif not loggingged_in and client.loggingin(definition['root_url'], definition['loggingin_path'],
-                                                    eval(loggingin_object), loggingin_headers, definition['loggingin_failed'], definition['loggingin_prerequest']):
-                    logging.info('[%s] loggingin successful' % provider)
-                    loggingged_in = True
-                elif not loggingged_in:
-                    logging.error("[%s] loggingin failed: %s", provider, client.status)
-                    logging.debug("[%s] Failed loggingin content: %s", provider, repr(client.content))
+                elif not logged_in and client.login(definition['root_url'], definition['login_path'],
+                                                    eval(login_object), login_headers, definition['login_failed'], definition['login_prerequest']):
+                    logging.info('[%s] login successful' % provider)
+                    logged_in = True
+                elif not logged_in:
+                    logging.error("[%s] login failed: %s", provider, client.status)
+                    logging.debug("[%s] Failed login content: %s", provider, repr(client.content))
                     return filtering.results
 
-                if loggingged_in:
+                if logged_in:
                     if provider == 'hd-torrents':
                         client.open(definition['root_url'] + '/torrents.php')
                         csrf_token = re.search(r'name="csrfToken" value="(.*?)"', client.content)
@@ -332,4 +340,5 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
                                 verify_size))
         except Exception as e:
             logging.error("[%s] Error from payload generator: %s", provider, e)
+    
     return filtering.results
