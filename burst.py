@@ -21,7 +21,7 @@ def general_payload(query):
     }
 
 
-def movie_payload(id, title, year, titles=""):
+def movie_payload(id, title, titles, year):
     return {
         "silent": False,
         "skip_auth": False,
@@ -32,20 +32,18 @@ def movie_payload(id, title, year, titles=""):
     }
 
 
-
-def tv_payload(id, title, titles="", season=None, episode=None, year=None):
+def show_payload(id, title, titles, year):
     return {
         "silent": False,
         "skip_auth": False,
         "imdb_id": id,
         "title": title,
         "titles": titles,
-        "season": season,
-        "episode": episode,
         "year": year,
     }
 
-def season_payload(id, title, season, titles="", year=None):
+
+def season_payload(id, title, season, titles, year):
     return {
         "silent": False,
         "skip_auth": False,
@@ -56,7 +54,8 @@ def season_payload(id, title, season, titles="", year=None):
         "year": year,
     }
 
-def episode_payload(id, title, season, episode, titles="", year=None):
+
+def episode_payload(id, title, season, episode, titles, year):
     return {
         "silent": False,
         "skip_auth": False,
@@ -92,30 +91,28 @@ class JacktookProvider(Provider):
         s = convert_results_jacktook(s)
         return s
 
-    def search_movie(self, id, title, titles, year):
-        s = search(movie_payload(id, title, year), "movie")
+    def search_movie(self, id, title, titles="", year=""):
+        logging.debug("search_movie")
+        s = search(movie_payload(id, title, titles, year), "movie")
+        s = convert_results_jacktook(s)
+        logging.debug(s)
+        return s
+
+    def search_show(self, id, title, titles="", year=""):
+        logging.debug("search_show")
+        s = search(show_payload(id, title, titles, year), "season")
+        s = convert_results_jacktook(s)
+        logging.debug(s)
+        return s
+
+    def search_season(self, id, title, season_number, titles="", year=""):
+        s = search(season_payload(id, title, season_number, titles, year), "season")
         s = convert_results_jacktook(s)
         return s
 
-    def search_show(self, id, show_title, titles, year):
+    def search_episode(self, id, title, season_number, episode_number, titles="", year=""):
         s = search(
-            tv_payload(id, show_title, year=year), "season"
-        )
-        s = convert_results_jacktook(s)
-        return s
-
-    def search_season(self, id, show_title, season_number, titles):
-        s = search(
-            season_payload(id, show_title, season_number), "season"
-        )
-        s = convert_results_jacktook(s)
-        return s
-
-    def search_episode(
-        self, id, show_title, season_number, episode_number, titles
-    ):
-        s = search(
-            episode_payload(id, show_title, season_number, episode_number), "episode"
+            episode_payload(id, title, season_number, episode_number, titles, year), "episode"
         )
         s = convert_results_jacktook(s)
         return s
