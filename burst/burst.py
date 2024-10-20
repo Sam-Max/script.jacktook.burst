@@ -104,6 +104,15 @@ def search(payload, method="general"):
 
     payload['titles'] = ""
 
+    # If titles[] exists in payload and there are special chars in titles[source]
+    #   then we set a flag to possibly modify the search query
+    payload['has_special'] = 'titles' in payload and \
+                             bool(payload['titles']) and \
+                             'source' in payload['titles'] and \
+                             any(c in payload['titles']['source'] for c in special_chars)
+    if payload['has_special']:
+        logging.debug("Query title contains special chars, so removing any quotes in the search query")
+
     if 'episode' not in payload:
         payload['episode'] = 0
     if 'proxy_url' not in payload:
@@ -147,9 +156,9 @@ def search(payload, method="general"):
         elif payload['titles'] and kodi_language not in payload['titles']:
             logging.info("No '%s' translation available..." % kodi_language)
 
-    p_dialogging = xbmcgui.DialogProgressBG()
+    p_dialog = xbmcgui.DialogProgressBG()
     if not payload['silent']:
-        p_dialogging.create('Jacktook [COLOR FFFF6B00]Burst[/COLOR]', translation(32061))
+        p_dialog.create('Jacktook [COLOR FFFF6B00]Burst[/COLOR]', translation(32061))
 
     if 'titles' in payload:
         logging.debug("Translated titles from Jacktook: %s" % (repr(payload['titles'])))
@@ -172,12 +181,12 @@ def search(payload, method="general"):
             break
         message = translation(32062) % available_providers if available_providers > 1 else translation(32063)
         if not payload['silent']:
-            p_dialogging.update(int((total - available_providers) / total * 100), message=message)
+            p_dialog.update(int((total - available_providers) / total * 100), message=message)
         time.sleep(0.25)
 
     if not payload['silent']:
-        p_dialogging.close()
-    del p_dialogging
+        p_dialog.close()
+    del p_dialog
 
     if available_providers > 0:
         message = ', '.join(provider_names)
