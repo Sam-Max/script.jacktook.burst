@@ -372,19 +372,16 @@ def extract_torrents(provider, client):
                 torrent = torrent[torrent.find('magnet:?'):]
 
             if debug_parser:
-                log.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'name', name_search, name))
-                log.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'description', description_search, description))
-                log.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'torrent', torrent_search, torrent))
-                log.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'size', size_search, size))
-                log.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'seeds', seeds_search, seeds))
-                log.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'peers', peers_search, peers))
+                logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'name', name_search, name))
+                logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'description', description_search, description))
+                logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'torrent', torrent_search, torrent))
+                logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'size', size_search, size))
+                logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'seeds', seeds_search, seeds))
+                logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'peers', peers_search, peers))
                 if info_hash_search:
                     logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'info_hash', info_hash_search, info_hash))
                 if referer_search:
-                    logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'info_hash', referer_search, referer))
-
-            if description:
-                name = '{} ({})'.format(name, description)
+                    logging.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'referer', referer_search, referer))
 
             if description:
                 name = '{} ({})'.format(name, description)
@@ -630,6 +627,13 @@ def extract_from_page(provider, content):
         matches = re.findall(r'/download.php\?id=([A-Za-z0-9]{40})\W', content)
         if matches:
             result = "magnet:?xt=urn:btih:" + matches[0]
+            logging.debug('[%s] Matched download link: %s' % (provider, repr(result)))
+            return result
+
+        matches = re.findall(r'/engine/download.php\?id=[A-Za-z0-9]+[^\s\'"]*', content) # animaunt
+        if matches:
+            result = definition['root_url'] + matches[0]
+            result += "|Referer=" + result # we need to add Referer header to download .torrent
             logging.debug('[%s] Matched download link: %s' % (provider, repr(result)))
             return result
 
