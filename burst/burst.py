@@ -590,6 +590,7 @@ def extract_from_page(provider, content):
         matches = re.findall(r'magnet:\?[^\'"\s<>\[\]]+', content)
         if matches:
             result = matches[0]
+            result = result.replace('xt.1=', 'xt=') # libtorrent does not support xt groups
             logging.debug('[%s] Matched magnet link: %s' % (provider, repr(result)))
             return result
 
@@ -647,6 +648,12 @@ def extract_from_page(provider, content):
         if matches:
             result = "magnet:?xt=urn:btih:" + matches[0]
             logging.debug('[%s] Matched magnet info_hash search: %s' % (provider, repr(result)))
+            return result
+
+        matches = re.findall(r'/hash/([A-Fa-f0-9]{40})', content) # bt4g
+        if matches:
+            result = "magnet:?xt=urn:btih:" + matches[0]
+            log.debug('[%s] Matched magnet info_hash search: %s' % (provider, repr(result)))
             return result
     except:
         pass
