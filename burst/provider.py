@@ -277,14 +277,15 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
                         else:
                             logged_in = True
 
-                if not logged_in and 'login_cookie' in definition and definition['login_cookie']:
+                if not logged_in and 'login_cookie' in definition and definition['login_cookie']:  # login via cookie sync
                     client._read_cookies()
                     if client.cookie_exists(definition['login_cookie'], urlparse(definition['root_url']).netloc):
                         client.use_cookie_sync = True
                         logged_in = True
                         logging.info("[%s] Using Cookie sync for authentication" % (provider))
 
-                if 'token_auth' in definition:
+                if 'token_auth' in definition:  # token_auth login currently unused by any tracker
+                    # log.debug("[%s] logging in with: %s" % (provider, login_object))
                     if client.open(definition['root_url'] + definition['token_auth'], post_data=eval(login_object)):
                         try:
                             token_data = json.loads(client.content)
@@ -303,6 +304,7 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
                     else:
                         logging.error("[%s] Token auth failed with response: %s" % (provider, repr(client.content)))
                         return filtering.results
+                # "Normal" login procedure
                 elif not logged_in and client.login(definition['root_url'], definition['login_path'],
                                                     eval(login_object), login_headers, definition['login_failed'], definition['login_prerequest']):
                     logging.info('[%s] login successful' % provider)
@@ -310,6 +312,7 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
                 elif not logged_in:
                     logging.error("[%s] login failed: %s", provider, client.status)
                     logging.debug("[%s] Failed login content: %s", provider, repr(client.content))
+                    notify(translation(32169).format(provider), image=get_icon_path())
                     return filtering.results
 
                 if logged_in:
