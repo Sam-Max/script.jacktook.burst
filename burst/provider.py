@@ -114,7 +114,7 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
 
     last_priority = 1
     for query, extra, priority in zip(filtering.queries, filtering.extras, filtering.queries_priorities):
-        logging.debug("[%s] Before keywords - Query: %s - Extra: %s" % (provider, repr(query), repr(extra)))
+        logging.debug("[%s] Before keywords - Query: %s - Extra: %s - Priority: %d" % (provider, repr(query), repr(extra), priority))
         if has_special:
             # Removing quotes, surrounding {title*} keywords, when title contains special chars
             query = re.sub("[\"']({title.*?})[\"']", '\\1', query)
@@ -124,12 +124,17 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
 
         if not query:
             continue
-        elif query+extra in used_queries:
-            # Make sure we don't run same query for this provider
-            continue
         elif priority > last_priority and filtering.results:
             # Skip fallbacks if there are results
             logging.debug("[%s] Skip fallback as there are already results" % provider)
+            continue
+        elif query+extra in used_queries:
+            # Make sure we don't run same query for this provider
+            logging.debug("[%s] Skip query as it was already used" % provider)
+            continue
+        elif query+extra in used_queries:
+            # Make sure we don't run same query for this provider
+            logging.debug("[%s] Skip query as it was already used" % provider)
             continue
         elif start_time and timeout and time.time() - start_time + 3 >= timeout:
             # Stop doing requests if there is 3 seconds left for the overall task
@@ -149,7 +154,7 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
             logging.debug("[%s] Could not quote the query (%s): %s" % (provider, query, e))
             pass
 
-        logging.debug("[%s] After keywords  - Query: %s - Extra: %s" % (provider, repr(query), repr(extra)))
+        logging.debug("[%s] After keywords  - Query: %s - Extra: %s - Priority: %d" % (provider, repr(query), repr(extra), priority))
         if not query:
             return filtering.results
 
@@ -317,7 +322,7 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
 
                 if logged_in:
                     if provider == 'lostfilm':
-                        log.info('[%s] Search lostfilm ID...', provider)
+                        logging.info('[%s] Search lostfilm ID...', provider)
                         client.open(py2_encode(url_search), post_data=payload, get_data=data)
                         series_details = re.search(r'PlayEpisode\(\'(\d+)\'\)">', client.content)
                         if series_details:
@@ -327,7 +332,7 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
                             if redirect_url is not None:
                                 url_search = redirect_url.group(1)
                         else:
-                            log.info('[%s] Have not found lostfilm ID in %s' % (provider, url_search))
+                            logging.info('[%s] Have not found lostfilm ID in %s' % (provider, url_search))
                             return filtering.results
                     if provider == 'hd-torrents':
                         client.open(definition['root_url'] + '/torrents.php')
@@ -347,7 +352,7 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
         if client.use_cookie_sync and 'login_failed' in definition and definition['login_failed'] and re.search(definition['login_failed'], client.content):
             client.status = 403
             if not is_silent:
-                log.error("[%s] > Could not authorize provider using cookie sync" % (provider))
+                logging.error("[%s] > Could not authorize provider using cookie sync" % (provider))
                 notify(translation(32168) % (definition['name']), image=get_icon_path())
 
         try:

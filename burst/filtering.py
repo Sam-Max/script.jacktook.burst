@@ -289,7 +289,7 @@ class Filtering:
         self.collect_queries('anime', definition)
 
     def split_title_per_languages(self, text, item_type):
-        """Splitting {title:lang:lang:...} into separate queries with same
+        """ Split {title:lang1:lang2:...} into separate queries {title:lang1}, {title:lang2} and so on
         """
         result = []
         modified = False
@@ -305,12 +305,10 @@ class Filtering:
                     return result
 
                 langs = keyword.lower().split(':')[1:]
-                if len(langs) < 2:
-                    continue
-
                 modified = True
                 for lang in langs:
                     result.append(text.replace("{%s}" % keyword, "{title:%s}" % lang))
+                result.append(text.replace("{%s}" % keyword, "{title}"))  # {title} used for kodi_language or provider_language, if they are set
 
         if not modified:
             return [text]
@@ -435,16 +433,18 @@ class Filtering:
                 use_language = None
                 if ':' in keyword:
                     use_language = keyword.split(':')[1].lower()
-                if provider not in self.language_exceptions and \
-                   (use_language or self.kodi_language) and \
-                   'titles' in self.info and self.info['titles']:
+                if (use_language or self.kodi_language or provider_language) and 'titles' in self.info and self.info['titles']:
                     try:
-                        if not use_language and self.kodi_language and self.kodi_language in self.info['titles']:
+                        # kodi_language used only for bare {title} and only if tracker not in language_exceptions
+                        if not use_language and self.kodi_language and self.kodi_language in self.info['titles'] and provider not in self.language_exceptions:
+                            logging.info("[%s] Using kodi_language '%s' title" % (provider, self.kodi_language))
                             use_language = self.kodi_language
+                        # otherwise use provider_language for {title}
                         if not use_language and provider_language and provider_language in self.info['titles']:
+                            logging.info("[%s] Using provider_language '%s' title" % (provider, provider_language))
                             use_language = provider_language
                         if use_language not in self.info['titles'] or not self.info['titles'][use_language]:
-                            logging.info("[%s] Falling back to original title in absence of %s language title" % (provider, use_language))
+                            logging.info("[%s] Falling back to 'original' title in absence of '%s' language title" % (provider, use_language))
                             use_language = "original"
 
                         if use_language in self.info['titles'] and self.info['titles'][use_language]:
@@ -469,6 +469,8 @@ class Filtering:
                         import traceback
                         logging.error("%s failed with: %s" % (provider, repr(e)))
                         map(logging.debug, traceback.format_exc().split("\n"))
+                else:
+                    logging.debug("[%s] Not using any translation" % provider)
                 text = text.replace('{%s}' % keyword, title)
 
             if 'year' in keyword:
