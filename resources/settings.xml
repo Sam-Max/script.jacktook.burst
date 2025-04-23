@@ -4,9 +4,10 @@
   <category label="32000">
     <setting label="32159" type="lsep" />
 
-    <setting label="32084" id="use_public_dns" type="bool" default="false" />
-    <setting id="public_dns_list" label="32093" type="text" default="8.8.8.8, 8.8.4.4, 9.9.9.9" enable="eq(-1,true)" />
-    <setting id="opennic_dns_list" label="32094" type="text" default="54.36.111.116, 192.3.165.37, 80.78.132.79" enable="eq(-2,true)" />
+    <setting label="32084" id="use_public_dns" type="bool" default="false" enable="eq(-2,false) + eq(3,false)" />
+      <setting id="public_dns_list" label="32093" type="text" default="8.8.8.8, 8.8.4.4, 9.9.9.9" enable="eq(-1,true)" />
+      <setting id="opennic_dns_list" label="32094" type="text" default="94.247.43.254, 152.53.15.127, 185.181.61.24" enable="eq(-2,true)" />
+    <setting label="32140" id="use_tor_dns" type="bool" default="false" enable="eq(-3,false)" />
 
     <setting label="32160" type="lsep" />
     <setting label="32143" id="overrides_path" type="folder" default="special://profile/addon_data/script.jacktook.burst/os.path.join(translatePath(ADDON_PROFILE), 'overrides.json')" source="auto" option="writeable" />
