@@ -41,7 +41,7 @@ if get_setting("use_custom_user_agent", bool):
     agent = get_setting("custom_user_agent", unicode)
     if agent:
         USER_AGENT = agent
-        log.debug("Using custom User Agent: %s" % (USER_AGENT))
+        logging.debug("Using custom User Agent: %s" % (USER_AGENT))
 
 PATH_TEMP = translatePath("special://temp")
 

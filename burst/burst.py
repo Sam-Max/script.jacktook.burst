@@ -325,7 +325,7 @@ def extract_torrents(provider, client):
                     logging.error("[%s] Subpage extraction for %s failed with: %s" % (provider, repr(uri[0]), repr(e)))
                     map(logging.debug, traceback.format_exc().split("\n"))
 
-            log.debug("[%s] Subpage torrent for %s: %s" % (provider, repr(uri[0]), torrent))
+            logging.debug("[%s] Subpage torrent for %s: %s" % (provider, repr(uri[0]), torrent))
             ret = (name, info_hash, torrent, size, seeds, peers)
 
             # Cache this subpage result if another query would need to request same url.

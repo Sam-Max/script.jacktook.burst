@@ -290,7 +290,7 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
                         logging.info("[%s] Using Cookie sync for authentication" % (provider))
 
                 if 'token_auth' in definition:  # token_auth login currently unused by any tracker
-                    # log.debug("[%s] logging in with: %s" % (provider, login_object))
+                    # logging.debug("[%s] logging in with: %s" % (provider, login_object))
                     if client.open(definition['root_url'] + definition['token_auth'], post_data=eval(login_object)):
                         try:
                             token_data = json.loads(client.content)
