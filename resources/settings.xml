@@ -4,7 +4,7 @@
   <category label="32000">
     <setting label="32159" type="lsep" />
 
-    <setting label="32084" id="use_public_dns" type="bool" default="false" enable="eq(-2,false) + eq(3,false)" />
+    <setting label="32084" id="use_public_dns" type="bool" default="false" enable="true" />
       <setting id="public_dns_list" label="32093" type="text" default="8.8.8.8, 8.8.4.4, 9.9.9.9" enable="eq(-1,true)" />
       <setting id="opennic_dns_list" label="32094" type="text" default="94.247.43.254, 152.53.15.127, 185.181.61.24" enable="eq(-2,true)" />
     <setting label="32140" id="use_tor_dns" type="bool" default="false" enable="eq(-3,false)" />
