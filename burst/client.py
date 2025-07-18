@@ -13,8 +13,10 @@ import os
 import urllib3
 import requests
 import antizapret
+
 try:
     import dns.resolver
+
     platform_can_resolve = True
 except:
     platform_can_resolve = False
@@ -120,7 +122,7 @@ def ResolvePublic(host):
 
 def ResolveOpennic(host):
     try:
-        logging.debug("Custom DNS resolving with public DNS for: %s" % host)
+        logging.debug("Custom DNS resolving with OpenNIC DNS for: %s" % host)
         resolver = dns.resolver.Resolver()
         resolver.nameservers = dns_opennic_list
         answer = resolver.query(host, "A")

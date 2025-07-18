@@ -14,8 +14,10 @@ import hashlib
 from .normalize import normalize_string, remove_accents
 from .providers.definitions import definitions
 from .utils import Magnet, get_int, get_float, clean_number, size_int, get_alias
+
 if PY3:
     import html
+
     unicode = str
 else:
     from .parser.HTMLParser import HTMLParser
@@ -27,19 +29,22 @@ try:
 except ImportError:
     from ordereddict import OrderedDict
 
-use_require_resolution = get_setting('require_resolution', bool)
-use_additional_filters = get_setting('additional_filters', bool)
-use_require_keywords = get_setting('require_keywords', bool)
-use_require_release_type = get_setting('require_release_type', bool)
-use_require_size = get_setting('require_size', bool)
-use_accept = get_setting('accept', unicode).strip().lower()
-use_block = get_setting('block', unicode).strip().lower()
-use_require = get_setting('require', unicode).strip().lower()
-use_min_size = get_setting('min_size')
-use_max_size = get_setting('max_size')
+use_require_resolution = get_setting("require_resolution", bool)
+use_additional_filters = get_setting("additional_filters", bool)
+use_require_keywords = get_setting("require_keywords", bool)
+use_require_release_type = get_setting("require_release_type", bool)
+use_require_size = get_setting("require_size", bool)
+use_accept = get_setting("accept", unicode).strip().lower()
+use_block = get_setting("block", unicode).strip().lower()
+use_require = get_setting("require", unicode).strip().lower()
+use_min_size = get_setting("min_size")
+use_max_size = get_setting("max_size")
 use_filter_quotes = get_setting("filter_quotes", bool)
-use_allow_noseeds = get_setting('allow_noseeds', bool)
-overwrite_anime_original_title = get_setting('overwrite_anime_original_title', choices=('original', 'jp', 'en'))
+use_allow_noseeds = get_setting("allow_noseeds", bool)
+overwrite_anime_original_title = get_setting(
+    "overwrite_anime_original_title", choices=("original", "jp", "en")
+)
+
 
 class Filtering:
     """
@@ -70,34 +75,41 @@ class Filtering:
         reason (str): Rejection reason when result does not match
         results (list): Filtered, accepted results
     """
+
     def __init__(self):
         resolutions = OrderedDict()
-        resolutions['filter_240p'] = ['240[pр]', r'vhs\-?rip']
-        resolutions['filter_480p'] = ['480[pр]', r'xvid|dvd|dvdrip|hdtv|web\-(dl)?rip|iptv|sat\-?rip|tv\-?rip']
-        resolutions['filter_720p'] = ['720[pр]|1280x720', r'hd720p?|hd\-?rip|b[rd]rip']
-        resolutions['filter_1080p'] = ['1080[piр]|1920x1080', r'hd1080p?|fullhd|fhd|blu\W*ray|bd\W*remux']
-        resolutions['filter_2k'] = ['1440[pр]', '2k']
-        resolutions['filter_4k'] = ['4k|2160[pр]|uhd', '4k|hd4k']
-        resolutions['filter_music'] = [r'mp3|flac|alac|ost|sound\-?track']
+        resolutions["filter_240p"] = ["240[pр]", r"vhs\-?rip"]
+        resolutions["filter_480p"] = [
+            "480[pр]",
+            r"xvid|dvd|dvdrip|hdtv|web\-(dl)?rip|iptv|sat\-?rip|tv\-?rip",
+        ]
+        resolutions["filter_720p"] = ["720[pр]|1280x720", r"hd720p?|hd\-?rip|b[rd]rip"]
+        resolutions["filter_1080p"] = [
+            "1080[piр]|1920x1080",
+            r"hd1080p?|fullhd|fhd|blu\W*ray|bd\W*remux",
+        ]
+        resolutions["filter_2k"] = ["1440[pр]", "2k"]
+        resolutions["filter_4k"] = ["4k|2160[pр]|uhd", "4k|hd4k"]
+        resolutions["filter_music"] = [r"mp3|flac|alac|ost|sound\-?track"]
         self.resolutions = resolutions
 
         self.release_types = {
-            'filter_brrip': [r'brrip|bd\-?rip|blu\-?ray|bd\-?remux'],
-            'filter_webdl': [r'web_?\-?dl|web\-?rip|dl\-?rip|yts'],
-            'filter_hdrip': [r'hd\-?rip'],
-            'filter_hdtv': [r'hd\-?tv'],
-            'filter_dvd': [r'dvd|dvd\-?rip|vcd\-?rip'],
-            'filter_dvdscr': [r'dvd\-?scr'],
-            'filter_screener': ['screener|scr'],
-            'filter_3d': ['3d'],
-            'filter_telesync': ['telesync|ts|telecine|tc|hdts'],
-            'filter_cam': [r'cam|cam\-?rip|hd\-?cam'],
-            'filter_tvrip': [r'tv\-?rip|sat\-?rip|dvb'],
-            'filter_iptvrip': [r'iptv\-?rip'],
-            'filter_vhsrip': [r'vhs\-?rip'],
-            'filter_trailer': ['trailer|трейлер|тизер'],
-            'filter_workprint': ['workprint'],
-            'filter_line': ['line']
+            "filter_brrip": [r"brrip|bd\-?rip|blu\-?ray|bd\-?remux"],
+            "filter_webdl": [r"web_?\-?dl|web\-?rip|dl\-?rip|yts"],
+            "filter_hdrip": [r"hd\-?rip"],
+            "filter_hdtv": [r"hd\-?tv"],
+            "filter_dvd": [r"dvd|dvd\-?rip|vcd\-?rip"],
+            "filter_dvdscr": [r"dvd\-?scr"],
+            "filter_screener": ["screener|scr"],
+            "filter_3d": ["3d"],
+            "filter_telesync": ["telesync|ts|telecine|tc|hdts"],
+            "filter_cam": [r"cam|cam\-?rip|hd\-?cam"],
+            "filter_tvrip": [r"tv\-?rip|sat\-?rip|dvb"],
+            "filter_iptvrip": [r"iptv\-?rip"],
+            "filter_vhsrip": [r"vhs\-?rip"],
+            "filter_trailer": ["trailer|трейлер|тизер"],
+            "filter_workprint": ["workprint"],
+            "filter_line": ["line"],
         }
 
         require = []
@@ -128,17 +140,17 @@ class Filtering:
         if use_additional_filters:
             accept = use_accept
             if accept:
-                accept = re.split(r',\s?', accept)
+                accept = re.split(r",\s?", accept)
                 releases_allow.extend(accept)
 
             block = use_block
             if block:
-                block = re.split(r',\s?', block)
+                block = re.split(r",\s?", block)
                 releases_deny.extend(block)
 
             require = use_require
             if require:
-                require = re.split(r',\s?', require)
+                require = re.split(r",\s?", require)
 
         self.releases_allow = releases_allow
         self.releases_deny = releases_deny
@@ -156,141 +168,198 @@ class Filtering:
         self.queries_priorities = []
 
         self.info = dict(title="", proxy_url="", internal_proxy_url="", titles=[])
-        self.kodi_language = ''
+        self.kodi_language = ""
         self.language_exceptions = []
         self.provider_languages = []
         self.get_data = {}
         self.post_data = {}
-        self.url = ''
-        self.title = ''
-        self.reason = ''
+        self.url = ""
+        self.title = ""
+        self.reason = ""
         self.results = []
 
     def use_general(self, provider, payload):
-        """ Setup method to define general search parameters
+        """Setup method to define general search parameters
 
         Args:
             provider (str): Provider ID
             payload (dict): Jacktook search payload
         """
+        # Domain name preferred order:
+        # root_url -> base_url (see update_definitions()) -> public_dns_alias OR tor_dns_alias -> user defined alias
         definition = definitions[provider]
-        definition = get_alias(definition, get_setting("%s_alias" % provider))
         if get_setting("use_public_dns", bool) and "public_dns_alias" in definition:
             definition = get_alias(definition, definition["public_dns_alias"])
+        if get_setting("use_tor_dns", bool) and "tor_dns_alias" in definition:
+            definition = get_alias(definition, definition["tor_dns_alias"])
+        definition = get_alias(definition, get_setting("%s_alias" % provider))
 
-        general_query = definition['general_query'] if 'general_query' in definition and definition['general_query'] else ''
-        logging.debug("[%s] General URL: %s%s" % (provider, definition['base_url'], general_query))
+        general_query = (
+            definition["general_query"]
+            if "general_query" in definition and definition["general_query"]
+            else ""
+        )
+        logging.debug(
+            "[%s] General URL: %s%s" % (provider, definition["base_url"], general_query)
+        )
         self.info = payload
-        self.url = u"%s%s" % (definition['base_url'], general_query)
+        self.url = "%s%s" % (definition["base_url"], general_query)
 
-        self.collect_queries('general', definition)
+        self.collect_queries("general", definition)
 
     def use_movie(self, provider, payload):
-        """ Setup method to define movie search parameters
+        """Setup method to define movie search parameters
 
         Args:
             provider (str): Provider ID
             payload (dict): Jacktook search payload
         """
+        # Domain name preferred order:
+        # root_url -> base_url (see update_definitions()) -> public_dns_alias OR tor_dns_alias -> user defined alias
         definition = definitions[provider]
-        definition = get_alias(definition, get_setting("%s_alias" % provider))
         if get_setting("use_public_dns", bool) and "public_dns_alias" in definition:
             definition = get_alias(definition, definition["public_dns_alias"])
+        if get_setting("use_tor_dns", bool) and "tor_dns_alias" in definition:
+            definition = get_alias(definition, definition["tor_dns_alias"])
+        definition = get_alias(definition, get_setting("%s_alias" % provider))
 
-        movie_query = definition['movie_query'] if 'movie_query' in definition and definition['movie_query'] else ''
-        logging.debug("[%s] Movies URL: %s%s" % (provider, definition['base_url'], movie_query))
-        if get_setting('separate_sizes', bool):
-            self.min_size = get_float(get_setting('min_size_movies'))
-            self.max_size = get_float(get_setting('max_size_movies'))
+        movie_query = (
+            definition["movie_query"]
+            if "movie_query" in definition and definition["movie_query"]
+            else ""
+        )
+        logging.debug(
+            "[%s] Movies URL: %s%s" % (provider, definition["base_url"], movie_query)
+        )
+        if get_setting("separate_sizes", bool):
+            self.min_size = get_float(get_setting("min_size_movies"))
+            self.max_size = get_float(get_setting("max_size_movies"))
             self.check_sizes()
         self.info = payload
-        self.url = u"%s%s" % (definition['base_url'], movie_query)
+        self.url = "%s%s" % (definition["base_url"], movie_query)
 
-        self.collect_queries('movie', definition)
+        self.collect_queries("movie", definition)
 
     def use_episode(self, provider, payload):
-        """ Setup method to define episode search parameters
+        """Setup method to define episode search parameters
 
         Args:
             provider (str): Provider ID
             payload (dict): Jacktook search payload
         """
+        # Domain name preferred order:
+        # root_url -> base_url (see update_definitions()) -> public_dns_alias OR tor_dns_alias -> user defined alias
         definition = definitions[provider]
-        definition = get_alias(definition, get_setting("%s_alias" % provider))
         if get_setting("use_public_dns", bool) and "public_dns_alias" in definition:
             definition = get_alias(definition, definition["public_dns_alias"])
+        if get_setting("use_tor_dns", bool) and "tor_dns_alias" in definition:
+            definition = get_alias(definition, definition["tor_dns_alias"])
+        definition = get_alias(definition, get_setting("%s_alias" % provider))
 
-        show_query = definition['show_query'] if 'show_query' in definition and definition['show_query'] else ''
-        logging.debug("[%s] Episode URL: %s%s" % (provider, definition['base_url'], show_query))
-        if get_setting('separate_sizes', bool):
-            self.min_size = get_float(get_setting('min_size_episodes'))
-            self.max_size = get_float(get_setting('max_size_episodes'))
+        show_query = (
+            definition["show_query"]
+            if "show_query" in definition and definition["show_query"]
+            else ""
+        )
+        logging.debug(
+            "[%s] Episode URL: %s%s" % (provider, definition["base_url"], show_query)
+        )
+        if get_setting("separate_sizes", bool):
+            self.min_size = get_float(get_setting("min_size_episodes"))
+            self.max_size = get_float(get_setting("max_size_episodes"))
             self.check_sizes()
         self.info = payload
-        self.url = u"%s%s" % (definition['base_url'], show_query)
+        self.url = "%s%s" % (definition["base_url"], show_query)
 
-        self.collect_queries('tv', definition)
+        self.collect_queries("tv", definition)
 
     def use_season(self, provider, payload):
-        """ Setup method to define season search parameters
+        """Setup method to define season search parameters
 
         Args:
             provider (str): Provider ID
             payload (dict): Jacktook search payload
         """
+        # Domain name preferred order:
+        # root_url -> base_url (see update_definitions()) -> public_dns_alias OR tor_dns_alias -> user defined alias
         definition = definitions[provider]
-        definition = get_alias(definition, get_setting("%s_alias" % provider))
         if get_setting("use_public_dns", bool) and "public_dns_alias" in definition:
             definition = get_alias(definition, definition["public_dns_alias"])
+        if get_setting("use_tor_dns", bool) and "tor_dns_alias" in definition:
+            definition = get_alias(definition, definition["tor_dns_alias"])
+        definition = get_alias(definition, get_setting("%s_alias" % provider))
 
-        season_query = definition['season_query'] if 'season_query' in definition and definition['season_query'] else ''
-        logging.debug("[%s] Season URL: %s%s" % (provider, definition['base_url'], season_query))
-        if get_setting('separate_sizes', bool):
-            self.min_size = get_float(get_setting('min_size_seasons'))
-            self.max_size = get_float(get_setting('max_size_seasons'))
+        season_query = (
+            definition["season_query"]
+            if "season_query" in definition and definition["season_query"]
+            else ""
+        )
+        logging.debug(
+            "[%s] Season URL: %s%s" % (provider, definition["base_url"], season_query)
+        )
+        if get_setting("separate_sizes", bool):
+            self.min_size = get_float(get_setting("min_size_seasons"))
+            self.max_size = get_float(get_setting("max_size_seasons"))
             self.check_sizes()
         self.info = payload
-        self.url = u"%s%s" % (definition['base_url'], season_query)
+        self.url = "%s%s" % (definition["base_url"], season_query)
 
-        self.collect_queries('season', definition)
+        self.collect_queries("season", definition)
 
     def use_anime(self, provider, payload):
-        """ Setup method to define anime search parameters
+        """Setup method to define anime search parameters
 
         Args:
             provider (str): Provider ID
             payload (dict): Jacktook search payload
         """
         definition = definitions[provider]
-        definition = get_alias(definition, get_setting("%s_alias" % provider))
+        # Domain name preferred order:
+        # root_url -> base_url (see update_definitions()) -> public_dns_alias OR tor_dns_alias -> user defined alias
         if get_setting("use_public_dns", bool) and "public_dns_alias" in definition:
             definition = get_alias(definition, definition["public_dns_alias"])
+        if get_setting("use_tor_dns", bool) and "tor_dns_alias" in definition:
+            definition = get_alias(definition, definition["tor_dns_alias"])
+        definition = get_alias(definition, get_setting("%s_alias" % provider))
 
-        anime_query = definition['anime_query'] if 'anime_query' in definition and definition['anime_query'] else ''
-        logging.debug("[%s] Anime URL: %s%s" % (provider, definition['base_url'], anime_query))
-        if get_setting('separate_sizes', bool):
-            self.min_size = get_float(get_setting('min_size_episodes'))
-            self.max_size = get_float(get_setting('max_size_episodes'))
+        anime_query = (
+            definition["anime_query"]
+            if "anime_query" in definition and definition["anime_query"]
+            else ""
+        )
+        logging.debug(
+            "[%s] Anime URL: %s%s" % (provider, definition["base_url"], anime_query)
+        )
+        if get_setting("separate_sizes", bool):
+            self.min_size = get_float(get_setting("min_size_episodes"))
+            self.max_size = get_float(get_setting("max_size_episodes"))
             self.check_sizes()
         self.info = payload
         # Overwrite anime's original title if needed
         global overwrite_anime_original_title
-        if 'titles' in self.info and self.info['titles']:
-            if overwrite_anime_original_title == 'jp' or overwrite_anime_original_title == '1':
-                if 'jp' in self.info['titles'] and self.info['titles']['jp']:
-                    self.info['titles']['original'] = self.info['titles']['jp']
+        if "titles" in self.info and self.info["titles"]:
+            if (
+                overwrite_anime_original_title == "jp"
+                or overwrite_anime_original_title == "1"
+            ):
+                if "jp" in self.info["titles"] and self.info["titles"]["jp"]:
+                    self.info["titles"]["original"] = self.info["titles"]["jp"]
                 else:
-                    overwrite_anime_original_title = 'en'  # fallback to English if Romaji is not available
-            if overwrite_anime_original_title == 'en' or overwrite_anime_original_title == '2':
-                if 'en' in self.info['titles'] and self.info['titles']['en']:
-                    self.info['titles']['original'] = self.info['titles']['en']
-        self.url = u"%s%s" % (definition['base_url'], anime_query)
+                    overwrite_anime_original_title = (
+                        "en"  # fallback to English if Romaji is not available
+                    )
+            if (
+                overwrite_anime_original_title == "en"
+                or overwrite_anime_original_title == "2"
+            ):
+                if "en" in self.info["titles"] and self.info["titles"]["en"]:
+                    self.info["titles"]["original"] = self.info["titles"]["en"]
+        self.url = "%s%s" % (definition["base_url"], anime_query)
 
-        self.collect_queries('anime', definition)
+        self.collect_queries("anime", definition)
 
     def split_title_per_languages(self, text, item_type):
-        """ Split {title:lang1:lang2:...} into separate queries {title:lang1}, {title:lang2} and so on
-        """
+        """Split {title:lang1:lang2:...} into separate queries {title:lang1}, {title:lang2} and so on"""
         result = []
         modified = False
 
@@ -298,17 +367,19 @@ class Filtering:
 
         for keyword in keywords:
             keyword = keyword.lower()
-            if 'title' in keyword and ':' in keyword:
+            if "title" in keyword and ":" in keyword:
                 # For general queries we should not process language settings.
-                if item_type == 'general':
+                if item_type == "general":
                     result.append(text.replace("{%s}" % keyword, "{title}"))
                     return result
 
-                langs = keyword.lower().split(':')[1:]
+                langs = keyword.lower().split(":")[1:]
                 modified = True
                 for lang in langs:
                     result.append(text.replace("{%s}" % keyword, "{title:%s}" % lang))
-                result.append(text.replace("{%s}" % keyword, "{title}"))  # {title} used for kodi_language or provider_language, if they are set
+                result.append(
+                    text.replace("{%s}" % keyword, "{title}")
+                )  # {title} used for kodi_language or provider_language, if they are set
 
         if not modified:
             return [text]
@@ -316,23 +387,23 @@ class Filtering:
             return result
 
     def different_years(self):
-        """ Checks whether there are different years defined in release dates
+        """Checks whether there are different years defined in release dates
 
         Returns:
             str: Dictionary of country/year.
         """
-        if 'year' not in self.info or 'years' not in self.info:
+        if "year" not in self.info or "years" not in self.info:
             return {}
 
-        self.info['years']['default'] = self.info['year']
+        self.info["years"]["default"] = self.info["year"]
 
         res = {}
         seen = set()
-        for key in self.info['years']:
-            if self.info['years'][key] in seen:
+        for key in self.info["years"]:
+            if self.info["years"][key] in seen:
                 continue
-            seen.add(self.info['years'][key])
-            res[key] = self.info['years'][key]
+            seen.add(self.info["years"][key])
+            res[key] = self.info["years"][key]
 
         return res
 
@@ -353,52 +424,62 @@ class Filtering:
 
         # Collecting keywords
         priority = 1
-        for item in ['', '2', '3', '4']:
-            key = item_type + '_keywords' + item
-            extra = item_type + '_extra' + item
+        for item in ["", "2", "3", "4"]:
+            key = item_type + "_keywords" + item
+            extra = item_type + "_extra" + item
             if key in definition and definition[key]:
                 qlist = self.split_title_per_languages(definition[key], item_type)
                 if len(different_years) > 1:
                     qlist = self.split_title_per_year(qlist, different_years)
                 self.queries.extend(qlist)
-                eitem = definition[extra] if extra in definition and definition[extra] else ''
+                eitem = (
+                    definition[extra]
+                    if extra in definition and definition[extra]
+                    else ""
+                )
                 for _ in qlist:
                     self.extras.append(eitem)
                     self.queries_priorities.append(priority)
 
         # Collecting fallback keywords, they will come in play if having no results at all
-        for item in ['', '2', '3', '4']:
-            key = item_type + '_keywords_fallback' + item
-            extra = item_type + '_extra_fallback' + item
+        for item in ["", "2", "3", "4"]:
+            key = item_type + "_keywords_fallback" + item
+            extra = item_type + "_extra_fallback" + item
             if key in definition and definition[key]:
                 qlist = self.split_title_per_languages(definition[key], item_type)
                 if len(different_years) > 1:
                     qlist = self.split_title_per_year(qlist, different_years)
                 self.queries.extend(qlist)
-                eitem = definition[extra] if extra in definition and definition[extra] else ''
+                eitem = (
+                    definition[extra]
+                    if extra in definition and definition[extra]
+                    else ""
+                )
                 for _ in qlist:
                     priority += 1
                     self.extras.append(eitem)
                     self.queries_priorities.append(priority)
 
     def information(self, provider):
-        """ Debugging method to print keywords and file sizes
-        """
-        logging.debug('[%s] Accepted resolutions: %s' % (provider, self.resolutions_allow))
-        logging.debug('[%s] Accepted release types: %s' % (provider, self.releases_allow))
-        logging.debug('[%s] Blocked release types: %s' % (provider, self.releases_deny))
-        logging.debug('[%s] Minimum size: %s' % (provider, str(self.min_size) + ' GB'))
-        logging.debug('[%s] Maximum size: %s' % (provider, str(self.max_size) + ' GB'))
+        """Debugging method to print keywords and file sizes"""
+        logging.debug(
+            "[%s] Accepted resolutions: %s" % (provider, self.resolutions_allow)
+        )
+        logging.debug(
+            "[%s] Accepted release types: %s" % (provider, self.releases_allow)
+        )
+        logging.debug("[%s] Blocked release types: %s" % (provider, self.releases_deny))
+        logging.debug("[%s] Minimum size: %s" % (provider, str(self.min_size) + " GB"))
+        logging.debug("[%s] Maximum size: %s" % (provider, str(self.max_size) + " GB"))
 
     def check_sizes(self):
-        """ Internal method to make sure size range settings are valid
-        """
+        """Internal method to make sure size range settings are valid"""
         if self.min_size > self.max_size:
             logging.warning("Minimum size above maximum, using max size minus 1 GB")
             self.min_size = self.max_size - 1
 
     def read_keywords(self, keywords):
-        """ Create list from keywords where the values are marked between curly brackets, ie. {title}
+        """Create list from keywords where the values are marked between curly brackets, ie. {title}
 
         Args:
             keywords (str): String with all the keywords, ie. '{title} {year} movie'
@@ -408,12 +489,12 @@ class Filtering:
         """
         results = []
         if keywords:
-            for value in re.findall('{(.*?)}', keywords):
+            for value in re.findall("{(.*?)}", keywords):
                 results.append(value)
         return results
 
     def process_keywords(self, provider, text, definition):
-        """ Processes the query payload from a provider's keyword definitions
+        """Processes the query payload from a provider's keyword definitions
 
         Args:
             provider (str): Provider ID
@@ -427,127 +508,178 @@ class Filtering:
 
         for keyword in keywords:
             keyword = keyword.lower()
-            if 'title' in keyword:
-                title = self.info['title']
-                provider_language = definitions[provider]['language']
+            if "title" in keyword:
+                title = self.info["title"]
+                provider_language = definitions[provider]["language"]
                 use_language = None
-                if ':' in keyword:
-                    use_language = keyword.split(':')[1].lower()
-                if (use_language or self.kodi_language or provider_language) and 'titles' in self.info and self.info['titles']:
+                if ":" in keyword:
+                    use_language = keyword.split(":")[1].lower()
+                if (
+                    (use_language or self.kodi_language or provider_language)
+                    and "titles" in self.info
+                    and self.info["titles"]
+                ):
                     try:
                         # kodi_language used only for bare {title} and only if tracker not in language_exceptions
-                        if not use_language and self.kodi_language and self.kodi_language in self.info['titles'] and provider not in self.language_exceptions:
-                            logging.info("[%s] Using kodi_language '%s' title" % (provider, self.kodi_language))
+                        if (
+                            not use_language
+                            and self.kodi_language
+                            and self.kodi_language in self.info["titles"]
+                            and provider not in self.language_exceptions
+                        ):
+                            logging.info(
+                                "[%s] Using kodi_language '%s' title"
+                                % (provider, self.kodi_language)
+                            )
                             use_language = self.kodi_language
                         # otherwise use provider_language for {title}
-                        if not use_language and provider_language and provider_language in self.info['titles']:
-                            logging.info("[%s] Using provider_language '%s' title" % (provider, provider_language))
+                        if (
+                            not use_language
+                            and provider_language
+                            and provider_language in self.info["titles"]
+                        ):
+                            logging.info(
+                                "[%s] Using provider_language '%s' title"
+                                % (provider, provider_language)
+                            )
                             use_language = provider_language
-                        if use_language not in self.info['titles'] or not self.info['titles'][use_language]:
-                            logging.info("[%s] Falling back to 'original' title in absence of '%s' language title" % (provider, use_language))
+                        if (
+                            use_language not in self.info["titles"]
+                            or not self.info["titles"][use_language]
+                        ):
+                            logging.info(
+                                "[%s] Falling back to 'original' title in absence of '%s' language title"
+                                % (provider, use_language)
+                            )
                             use_language = "original"
 
-                        if use_language in self.info['titles'] and self.info['titles'][use_language]:
-                            title = self.info['titles'][use_language]
+                        if (
+                            use_language in self.info["titles"]
+                            and self.info["titles"][use_language]
+                        ):
+                            title = self.info["titles"][use_language]
                             title = normalize_string(title)
                             # For all non-original titles, that are not base languages of a tracker OR english language, try to remove accents from the title.
-                            if use_language != 'original' and (self.convert_language(use_language) not in self.provider_languages or self.convert_language(use_language) == 'en'):
+                            if use_language != "original" and (
+                                self.convert_language(use_language)
+                                not in self.provider_languages
+                                or self.convert_language(use_language) == "en"
+                            ):
                                 title = remove_accents(title)
                             # Remove characters, filled in 'remove_special_characters' field definition.
-                            if 'remove_special_characters' in definition and definition['remove_special_characters']:
-                                for char in definition['remove_special_characters']:
+                            if (
+                                "remove_special_characters" in definition
+                                and definition["remove_special_characters"]
+                            ):
+                                for char in definition["remove_special_characters"]:
                                     title = title.replace(char, "")
                                 title = " ".join(title.split())
 
-                            logging.info("[%s] Using translated '%s' title %s" % (provider, use_language,
-                                                                              repr(title)))
+                            logging.info(
+                                "[%s] Using translated '%s' title %s"
+                                % (provider, use_language, repr(title))
+                            )
                         else:
-                            logging.debug("[%s] Skipping the query '%s' due to missing '%s' language title" % (provider, text, use_language))
+                            logging.debug(
+                                "[%s] Skipping the query '%s' due to missing '%s' language title"
+                                % (provider, text, use_language)
+                            )
                             # If title for specific language cannot be read - cancel this query
                             return ""
                     except Exception as e:
                         import traceback
+
                         logging.error("%s failed with: %s" % (provider, repr(e)))
                         map(logging.debug, traceback.format_exc().split("\n"))
                 else:
                     logging.debug("[%s] Not using any translation" % provider)
-                text = text.replace('{%s}' % keyword, title)
+                text = text.replace("{%s}" % keyword, title)
 
-            if 'year' in keyword:
-                if ':' not in keyword:
-                    text = text.replace('{%s}' % keyword, str(self.info["year"]))
+            if "year" in keyword:
+                if ":" not in keyword:
+                    text = text.replace("{%s}" % keyword, str(self.info["year"]))
                 else:
-                    use_language = keyword.split(':')[1].lower()
-                    if use_language in self.info['years'] and self.info['years'][use_language]:
-                        text = text.replace('{%s}' % keyword, str(self.info['years'][use_language]))
+                    use_language = keyword.split(":")[1].lower()
+                    if (
+                        use_language in self.info["years"]
+                        and self.info["years"][use_language]
+                    ):
+                        text = text.replace(
+                            "{%s}" % keyword, str(self.info["years"][use_language])
+                        )
 
-            if 'show_tmdb_id' in keyword:
-                if 'show_tmdb_id' not in self.info:
-                    self.info['show_tmdb_id'] = ''
+            if "show_tmdb_id" in keyword:
+                if "show_tmdb_id" not in self.info:
+                    self.info["show_tmdb_id"] = ""
 
-                text = text.replace('{%s}' % keyword, str(self.info["show_tmdb_id"]))
+                text = text.replace("{%s}" % keyword, str(self.info["show_tmdb_id"]))
 
-            if 'tmdb_id' in keyword:
-                if 'tmdb_id' not in self.info:
-                    self.info['tmdb_id'] = ''
+            if "tmdb_id" in keyword:
+                if "tmdb_id" not in self.info:
+                    self.info["tmdb_id"] = ""
 
-                text = text.replace('{%s}' % keyword, str(self.info["tmdb_id"]))
+                text = text.replace("{%s}" % keyword, str(self.info["tmdb_id"]))
 
-            if 'tvdb_id' in keyword:
-                if 'tvdb_id' not in self.info:
-                    self.info['tvdb_id'] = ''
+            if "tvdb_id" in keyword:
+                if "tvdb_id" not in self.info:
+                    self.info["tvdb_id"] = ""
 
-                text = text.replace('{%s}' % keyword, str(self.info["tvdb_id"]))
+                text = text.replace("{%s}" % keyword, str(self.info["tvdb_id"]))
 
-            if 'imdb_id' in keyword:
-                if 'imdb_id' not in self.info:
-                    self.info['imdb_id'] = ''
+            if "imdb_id" in keyword:
+                if "imdb_id" not in self.info:
+                    self.info["imdb_id"] = ""
 
-                text = text.replace('{%s}' % keyword, str(self.info["imdb_id"]))
+                text = text.replace("{%s}" % keyword, str(self.info["imdb_id"]))
 
-            if 'season' in keyword:
-                if '+' in keyword:
-                    keys = keyword.split('+')
+            if "season" in keyword:
+                if "+" in keyword:
+                    keys = keyword.split("+")
                     season = str(self.info["season"] + get_int(keys[1]))
-                elif ':' in keyword:
-                    keys = keyword.split(':')
-                    season = ('%%.%sd' % keys[1]) % self.info["season"]
+                elif ":" in keyword:
+                    keys = keyword.split(":")
+                    season = ("%%.%sd" % keys[1]) % self.info["season"]
                 else:
-                    season = '%s' % self.info["season"]
-                text = text.replace('{%s}' % keyword, season)
+                    season = "%s" % self.info["season"]
+                text = text.replace("{%s}" % keyword, season)
 
-            if 'episode' in keyword and 'absolute' not in keyword:
-                if '+' in keyword:
-                    keys = keyword.split('+')
+            if "episode" in keyword and "absolute" not in keyword:
+                if "+" in keyword:
+                    keys = keyword.split("+")
                     episode = str(self.info["episode"] + get_int(keys[1]))
-                elif ':' in keyword:
-                    keys = keyword.split(':')
-                    episode = ('%%.%sd' % keys[1]) % self.info["episode"]
+                elif ":" in keyword:
+                    keys = keyword.split(":")
+                    episode = ("%%.%sd" % keys[1]) % self.info["episode"]
                 else:
-                    episode = '%s' % self.info["episode"]
-                text = text.replace('{%s}' % keyword, episode)
+                    episode = "%s" % self.info["episode"]
+                text = text.replace("{%s}" % keyword, episode)
 
-            if 'absolute_episode' in keyword:
-                if 'absolute_number' not in self.info or not self.info['absolute_number']:
-                    logging.debug("Skipping query '%s' due to missing absolute_number" % text)
+            if "absolute_episode" in keyword:
+                if (
+                    "absolute_number" not in self.info
+                    or not self.info["absolute_number"]
+                ):
+                    logging.debug(
+                        "Skipping query '%s' due to missing absolute_number" % text
+                    )
                     return ""
-                if '+' in keyword:
-                    keys = keyword.split('+')
+                if "+" in keyword:
+                    keys = keyword.split("+")
                     episode = str(self.info["absolute_number"] + get_int(keys[1]))
-                elif ':' in keyword:
-                    keys = keyword.split(':')
-                    episode = ('%%.%sd' % keys[1]) % self.info["absolute_number"]
+                elif ":" in keyword:
+                    keys = keyword.split(":")
+                    episode = ("%%.%sd" % keys[1]) % self.info["absolute_number"]
                 else:
-                    episode = '%s' % self.info["absolute_number"]
-                text = text.replace('{%s}' % keyword, episode)
+                    episode = "%s" % self.info["absolute_number"]
+                text = text.replace("{%s}" % keyword, episode)
 
         if replacing:
-            text = text.replace(u"'", '')
+            text = text.replace("'", "")
 
         return text
 
     def verify(self, provider, name, size):
-        """ Main filtering method to match torrent names, resolutions, release types and size filters
+        """Main filtering method to match torrent names, resolutions, release types and size filters
 
         Args:
             provider (str): Provider ID
@@ -558,7 +690,7 @@ class Filtering:
             bool: ``True`` if torrent name passed filtering, ``False`` otherwise.
         """
         if not name:
-            self.reason = '[%s] %s' % (provider, '*** Empty name ***')
+            self.reason = "[%s] %s" % (provider, "*** Empty name ***")
             return False
 
         name = normalize_string(name)
@@ -574,7 +706,7 @@ class Filtering:
                 return False
 
         if self.filter_title:
-            if not all(map(lambda match: match in name, re.split(r'\s', self.title))):
+            if not all(map(lambda match: match in name, re.split(r"\s", self.title))):
                 self.reason += " Name mismatch"
                 return False
 
@@ -584,7 +716,10 @@ class Filtering:
                     self.reason += " Missing required keyword"
                     return False
 
-        if not self.included_rx(name, keys=self.releases_allow) and use_require_release_type:
+        if (
+            not self.included_rx(name, keys=self.releases_allow)
+            and use_require_release_type
+        ):
             self.reason += " Missing release type keyword"
             return False
 
@@ -599,7 +734,7 @@ class Filtering:
         return True
 
     def in_size_range(self, size):
-        """ Compares size ranges
+        """Compares size ranges
 
         Args:
             size (str): File size string, ie. ``1.21 GB``
@@ -616,7 +751,7 @@ class Filtering:
         return res
 
     def determine_resolution(self, name):
-        """ Determine torrent resolution from defined filters. Defaults to ``filter_480p``.
+        """Determine torrent resolution from defined filters. Defaults to ``filter_480p``.
 
         Args:
             name (str): Name of the torrent to determine the resolution for
@@ -626,7 +761,7 @@ class Filtering:
         """
         idx = 0
         count = -1
-        res = 'filter_480p'  # Default to 480p
+        res = "filter_480p"  # Default to 480p
         for resolution in self.resolutions:
             count += 1
             if self.included_rx(name, keys=self.resolutions[resolution]):
@@ -635,7 +770,7 @@ class Filtering:
         return res, idx
 
     def included(self, value, keys, strict=False):
-        """ Check if the keys are present in the string
+        """Check if the keys are present in the string
 
         Args:
             value   (str): Name of the torrent to check
@@ -645,18 +780,18 @@ class Filtering:
         Returns:
             bool: True if any (or all if ``strict``) keys are included, False otherwise.
         """
-        value = ' ' + value + ' '
-        if '*' in keys:
+        value = " " + value + " "
+        if "*" in keys:
             res = True
         else:
             value = value.lower()
             res1 = []
             for key in keys:
                 res2 = []
-                for item in re.split(r'\s', key):
-                    item = item.replace('_', ' ')  # for keyword like _HEVC_
+                for item in re.split(r"\s", key):
+                    item = item.replace("_", " ")  # for keyword like _HEVC_
                     if strict:
-                        item = ' ' + item + ' '
+                        item = " " + item + " "
                     if item.lower() in value:
                         res2.append(True)
                     else:
@@ -666,7 +801,7 @@ class Filtering:
         return res
 
     def included_rx(self, value, keys):
-        """ Check if the keys are matched in the string
+        """Check if the keys are matched in the string
 
         Args:
             value   (str): Name of the torrent to check
@@ -675,15 +810,15 @@ class Filtering:
         Returns:
             bool: True if any of keys is included, False otherwise.
         """
-        value = ' ' + value.lower() + ' '
+        value = " " + value.lower() + " "
         for key in keys:
-            rr = r'\W+(' + key + r')\W+'
+            rr = r"\W+(" + key + r")\W+"
             if re.search(rr, value):
                 return True
         return False
 
     def unescape(self, name):
-        """ Unescapes all HTML entities from a string using
+        """Unescapes all HTML entities from a string using
             HTMLParser().unescape()
 
         Args:
@@ -692,7 +827,7 @@ class Filtering:
         Returns:
             str: Converted string
         """
-        name = name.replace('<![CDATA[', '').replace(']]', '')
+        name = name.replace("<![CDATA[", "").replace("]]", "")
 
         if PY3:
             name = html.unescape(name.lower())
@@ -702,7 +837,7 @@ class Filtering:
         return name
 
     def exception(self, title=None):
-        """ Change the title to the standard name in torrent sites
+        """Change the title to the standard name in torrent sites
 
         Args:
             title (str): Title to check
@@ -712,10 +847,12 @@ class Filtering:
         """
         if title:
             title = title.lower()
-            title = title.replace('csi crime scene investigation', 'CSI')
-            title = title.replace('law and order special victims unit', 'law and order svu')
-            title = title.replace('law order special victims unit', 'law and order svu')
-            title = title.replace('S H I E L D', 'SHIELD')
+            title = title.replace("csi crime scene investigation", "CSI")
+            title = title.replace(
+                "law and order special victims unit", "law and order svu"
+            )
+            title = title.replace("law order special victims unit", "law and order svu")
+            title = title.replace("S H I E L D", "SHIELD")
 
         return title
 
@@ -724,21 +861,22 @@ class Filtering:
             self.provider_languages.append(language)
 
     def convert_language(self, language):
-        if language == 'ru' or language == 'ua' or language == 'by':
-            return 'cr'
+        if language == "ru" or language == "ua" or language == "by":
+            return "cr"
         else:
             return language
 
     def define_languages(self, provider):
         definition = definitions[provider]
-        if 'language' in definition and definition['language']:
-            self.add_provider_language(self.convert_language(definition['language']))
-        if 'languages' in definition and definition['languages']:
-            for lang in definition['languages'].split(","):
+        if "language" in definition and definition["language"]:
+            self.add_provider_language(self.convert_language(definition["language"]))
+        if "languages" in definition and definition["languages"]:
+            for lang in definition["languages"].split(","):
                 self.add_provider_language(self.convert_language(lang))
 
+
 def apply_filters(results_list):
-    """ Applies final result de-duplicating, hashing and sorting
+    """Applies final result de-duplicating, hashing and sorting
 
     Args:
         results_list (list): Formatted results in any order
@@ -752,7 +890,7 @@ def apply_filters(results_list):
 
 
 def cleanup_results(results_list):
-    """ Remove duplicate results, hash results without an info_hash, and sort by seeders
+    """Remove duplicate results, hash results without an info_hash, and sort by seeders
 
     Args:
         results_list (list): Results to clean-up
@@ -766,22 +904,28 @@ def cleanup_results(results_list):
     hashes = []
     filtered_list = []
     for result in results_list:
-        if not result['seeds'] and not use_allow_noseeds:
-            logging.debug('[%s] Skipping due to no seeds: %s' % (result['provider'][16:-8], repr(result['name'])))
+        if not result["seeds"] and not use_allow_noseeds:
+            logging.debug(
+                "[%s] Skipping due to no seeds: %s"
+                % (result["provider"][16:-8], repr(result["name"]))
+            )
             continue
 
-        if not result['uri']:
-            logging.debug('[%s] Skipping due to empty uri: %s' % (result['provider'][16:-8], repr(result)))
+        if not result["uri"]:
+            logging.debug(
+                "[%s] Skipping due to empty uri: %s"
+                % (result["provider"][16:-8], repr(result))
+            )
             continue
 
-        hash_ = result['info_hash'].upper()
+        hash_ = result["info_hash"].upper()
 
         if not hash_:
             try:
-                if result['uri'] and result['uri'].startswith('magnet'):
-                    hash_ = Magnet(result['uri']).info_hash.upper()
+                if result["uri"] and result["uri"].startswith("magnet"):
+                    hash_ = Magnet(result["uri"]).info_hash.upper()
                 else:
-                    hash_ = py2_encode(result['uri'].split("|")[0])
+                    hash_ = py2_encode(result["uri"].split("|")[0])
                     try:
                         hash_ = hash_.encode()
                     except:
@@ -791,7 +935,7 @@ def cleanup_results(results_list):
                 pass
 
         # Make sure all are upper-case and provider-scoped
-        hash_ = result['provider'] + hash_.upper()
+        hash_ = result["provider"] + hash_.upper()
 
         # try:
         #     logging.debug("[%s] Hash for %s: %s" % (result['provider'][16:-8], repr(result['name']), hash_))
@@ -804,6 +948,9 @@ def cleanup_results(results_list):
             filtered_list.append(result)
             hashes.append(hash_)
         else:
-            logging.debug('[%s] Skipping due to repeating hash: %s' % (result['provider'][16:-8], repr(result)))
+            logging.debug(
+                "[%s] Skipping due to repeating hash: %s"
+                % (result["provider"][16:-8], repr(result))
+            )
 
-    return sorted(filtered_list, key=lambda r: (get_int(r['seeds'])), reverse=True)
+    return sorted(filtered_list, key=lambda r: (get_int(r["seeds"])), reverse=True)
