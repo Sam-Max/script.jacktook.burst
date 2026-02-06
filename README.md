@@ -57,12 +57,9 @@ Contributions are welcome!
 
 ## Credits
 
-This project stands on the shoulders of giants. Huge thanks to:
+This project stands on the shoulders of a giant. Huge thanks to:
 
 - **[@elgatito](https://github.com/elgatito)** for Elementum Burst.
-- **[@scakemyer](https://github.com/scakemyer)** for the original Quasar Burst module.
-- **[@mancuniancol](https://github.com/mancuniancol)** for their extensive work on Magnetic.
-- All the alpha and beta testers who contributed to the release.
 
 ## License
 
