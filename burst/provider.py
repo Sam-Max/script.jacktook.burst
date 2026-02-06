@@ -6,7 +6,7 @@ Provider thread methods
 
 import logging
 from burst.kodi import get_setting, set_setting
-from future.utils import PY3, iteritems
+from .compat import PY3, iteritems
 
 import os
 import re

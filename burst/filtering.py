@@ -7,7 +7,7 @@ Burst filtering class and methods
 from __future__ import unicode_literals
 import logging
 from burst.kodi import get_setting
-from future.utils import PY3
+from .compat import PY3
 
 import re
 import hashlib

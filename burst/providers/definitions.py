@@ -5,13 +5,14 @@ Definitions and overrides loader
 
 import logging
 from burst.kodi import get_setting
-from future.utils import PY3, iteritems
+from ..compat import PY3, iteritems
 
 import os
 import sys
 import json
 import time
 from glob import glob
+
 if PY3:
     from urllib.parse import urlparse
     from collections.abc import Mapping
@@ -31,19 +32,19 @@ if not ADDON_PATH:
 
 definitions = {}
 mandatory_fields = {
-    'name': '',
-    'predefined': False,
-    'enabled': False,
-    'private': False,
-    'id': '',
-    'languages': '',
-    'charset': 'utf8',
-    'response_charset': None
+    "name": "",
+    "predefined": False,
+    "enabled": False,
+    "private": False,
+    "id": "",
+    "languages": "",
+    "charset": "utf8",
+    "response_charset": None,
 }
 
 
 def load_providers(path, custom=False):
-    """ Definitions loader for json files
+    """Definitions loader for json files
 
     Args:
         path         (str): Path to json file to be loaded
@@ -59,12 +60,13 @@ def load_providers(path, custom=False):
             update_definitions(provider, providers[provider], custom)
     except Exception as e:
         import traceback
+
         logging.error("Failed importing providers from %s: %s", path, repr(e))
         map(logging.error, traceback.format_exc().split("\n"))
 
 
 def load_overrides(path, custom=False):
-    """ Overrides loader for Python files
+    """Overrides loader for Python files
 
     Note:
         Overrides must be in an ``overrides`` dictionary.
@@ -77,32 +79,39 @@ def load_overrides(path, custom=False):
         if custom:
             sys.path.append(path)
             from overrides import overrides
+
             logging.debug("Imported overrides: %s", repr(overrides))
             for provider in overrides:
                 update_definitions(provider, overrides[provider])
-            logging.info("Successfully loaded overrides from %s", os.path.join(path, "overrides.py"))
+            logging.info(
+                "Successfully loaded overrides from %s",
+                os.path.join(path, "overrides.py"),
+            )
     except Exception as e:
         import traceback
-        logging.error("Failed importing %soverrides: %s", "custom " if custom else "", repr(e))
+
+        logging.error(
+            "Failed importing %soverrides: %s", "custom " if custom else "", repr(e)
+        )
         map(logging.error, traceback.format_exc().split("\n"))
 
 
 def update_definitions(provider, definition, custom=False):
-    """ Updates global definitions with a single provider's definitions
+    """Updates global definitions with a single provider's definitions
 
     Args:
         provider     (str): Provider ID
         definition  (dict): Loaded provider's definitions to be merged with the global definitions
         custom      (bool): Boolean flag to specify if this is a custom provider
     """
-    if 'base_url' in definition:
-        parsed_url = urlparse(definition['base_url'])
-        root_url = '%s://%s' % (parsed_url.scheme, parsed_url.netloc)
-        definition['root_url'] = root_url
+    if "base_url" in definition:
+        parsed_url = urlparse(definition["base_url"])
+        root_url = "%s://%s" % (parsed_url.scheme, parsed_url.netloc)
+        definition["root_url"] = root_url
 
     if custom:
-        definition['custom'] = True
-        definition['enabled'] = True
+        definition["custom"] = True
+        definition["enabled"] = True
 
     if provider in definitions:
         update(definitions[provider], definition)
@@ -111,7 +120,7 @@ def update_definitions(provider, definition, custom=False):
 
 
 def update(d, u):
-    """ Utility method to recursively merge dictionary values of definitions
+    """Utility method to recursively merge dictionary values of definitions
 
     Args:
         d (dict): Current provider definitions
@@ -125,19 +134,20 @@ def update(d, u):
             d[k] = u[k]
     return d
 
+
 def translatePath(*args, **kwargs):
-    kodi_version = xbmc.getInfoLabel('System.BuildVersion').split('.')[0]
-    if kodi_version >= '19':
+    kodi_version = xbmc.getInfoLabel("System.BuildVersion").split(".")[0]
+    if kodi_version >= "19":
         return xbmcvfs.translatePath(*args, **kwargs)
     else:
         return xbmc.translatePath(*args, **kwargs)
 
 
 # Load providers
-load_providers(os.path.join(ADDON_PATH, 'burst', 'providers', 'providers.json'))
+load_providers(os.path.join(ADDON_PATH, "burst", "providers", "providers.json"))
 
 # Load providers overrides
-load_overrides(os.path.join(ADDON_PATH, 'burst', 'providers'))
+load_overrides(os.path.join(ADDON_PATH, "burst", "providers"))
 
 # Load user's custom providers
 custom_providers = os.path.join(translatePath(ADDON_PROFILE), "providers")
@@ -153,13 +163,15 @@ for provider_file in glob(os.path.join(custom_providers, "*.json")):
 
 # Load user's custom overrides
 custom_overrides = translatePath(ADDON_PROFILE)
-if os.path.exists(os.path.join(custom_overrides, 'overrides.py')):
+if os.path.exists(os.path.join(custom_overrides, "overrides.py")):
     load_overrides(custom_overrides, custom=True)
 
 # Load json overrides from Kodi settings folder, if that does not exist - fallback to default value
-overrides_path = os.path.join(translatePath(get_setting("overrides_path")), 'overrides.json')
+overrides_path = os.path.join(
+    translatePath(get_setting("overrides_path")), "overrides.json"
+)
 if not os.path.exists(overrides_path):
-    overrides_path = os.path.join(translatePath(ADDON_PROFILE), 'overrides.json')
+    overrides_path = os.path.join(translatePath(ADDON_PROFILE), "overrides.json")
 
 load_providers(overrides_path)
 
@@ -172,6 +184,12 @@ for provider in definitions:
 # Finding the largest provider name for further use in logginggers.
 longest = 10
 if len(definitions) > 0:
-    longest = len(definitions[sorted(definitions, key=lambda p: len(definitions[p]['name']), reverse=True)[0]]['name'])
+    longest = len(
+        definitions[
+            sorted(
+                definitions, key=lambda p: len(definitions[p]["name"]), reverse=True
+            )[0]
+        ]["name"]
+    )
 
 logging.info("Loading definitions took %fs", time.time() - start_time)

@@ -4,20 +4,21 @@
 # Created on:  30.05.2017
 # Licence:     GPL v.3: http://www.gnu.org/copyleft/gpl.html
 """
-    Normalization strings to Unicode
+Normalization strings to Unicode
 """
 
 from __future__ import unicode_literals
 import logging
-from future.builtins import range, chr
-from future.utils import PY3
+from .compat import PY3
 
 import json
 import re
 import unicodedata
+
 if PY3:
     import html
     from urllib.parse import unquote
+
     unicode = str
 else:
     from urllib import unquote
@@ -34,12 +35,12 @@ def clean_title(string=None):
     :rtype: unicode
     """
     if string:
-        string = re.sub(r'\((.*?)\)', u'', string).strip()
+        string = re.sub(r"\((.*?)\)", "", string).strip()
 
     return string
 
 
-def are_equals(string_1='', string_2=''):
+def are_equals(string_1="", string_2=""):
     """
         Checks if the two string are equals even without accents
     :param string_1: first string
@@ -66,13 +67,13 @@ def remove_accents(string):
     """
 
     try:
-        string = unicode(string, 'utf-8')
+        string = unicode(string, "utf-8")
     # unicode is a default on python 3
     except (TypeError, NameError):
         pass
 
-    nfkd_form = unicodedata.normalize('NFKD', string)
-    return u"".join([c for c in nfkd_form if not unicodedata.combining(c)])
+    nfkd_form = unicodedata.normalize("NFKD", string)
+    return "".join([c for c in nfkd_form if not unicodedata.combining(c)])
 
 
 def remove_control_chars(string):
@@ -83,11 +84,11 @@ def remove_control_chars(string):
     :return: modified string
     :rtype: unicode
     """
-    control_chars = ''.join(map(chr, list(range(0, 32)) + list(range(127, 160))))
-    control_char_re = re.compile(u'[%s]' % re.escape(control_chars))
-    tem_string = control_char_re.sub('', string)
-    control_char_re = re.compile(u'[%s]' % re.escape(chr(160)))
-    return control_char_re.sub(' ', tem_string)
+    control_chars = "".join(map(chr, list(range(0, 32)) + list(range(127, 160))))
+    control_char_re = re.compile("[%s]" % re.escape(control_chars))
+    tem_string = control_char_re.sub("", string)
+    control_char_re = re.compile("[%s]" % re.escape(chr(160)))
+    return control_char_re.sub(" ", tem_string)
 
 
 def safe_name_torrent(string):
@@ -100,30 +101,30 @@ def safe_name_torrent(string):
     """
     # erase keyword
     string = string.lower()
-    string = re.sub(r'^\[.*?\]', u'', string)  # erase [HorribleSub] for ex.
+    string = re.sub(r"^\[.*?\]", "", string)  # erase [HorribleSub] for ex.
     # check for anime
-    string = re.sub(r'- ([0-9][0-9][0-9][0-9]) ', r' \g<1>', string + u' ')
-    string = re.sub(r'- ([0-9]+) ', r'- EP\g<1>', string + u' ')
-    if 'season' not in string.lower():
-        string = string.lower().replace(u' episode ', u' - EP')
+    string = re.sub(r"- ([0-9][0-9][0-9][0-9]) ", r" \g<1>", string + " ")
+    string = re.sub(r"- ([0-9]+) ", r"- EP\g<1>", string + " ")
+    if "season" not in string.lower():
+        string = string.lower().replace(" episode ", " - EP")
 
     # check for qualities
-    string = string.replace(u'1920x1080', u'1080p')
-    string = string.replace(u'1280x720', u'720p')
-    string = string.replace(u'853x480', u'480p')
-    string = string.replace(u'848x480', u'480p')
-    string = string.replace(u'704x480', u'480p')
-    string = string.replace(u'640x480', u'480p')
-    string = string.replace(u'microhd', u' microhd')  # sometimes comes with the year
-    string = string.replace(u'dvdrip', u' dvdrip')  # sometimes comes with the year
-    string = string.replace(u'1080p', u'')
-    string = string.replace(u'720p', u'')
-    string = string.replace(u'480p', u'')
+    string = string.replace("1920x1080", "1080p")
+    string = string.replace("1280x720", "720p")
+    string = string.replace("853x480", "480p")
+    string = string.replace("848x480", "480p")
+    string = string.replace("704x480", "480p")
+    string = string.replace("640x480", "480p")
+    string = string.replace("microhd", " microhd")  # sometimes comes with the year
+    string = string.replace("dvdrip", " dvdrip")  # sometimes comes with the year
+    string = string.replace("1080p", "")
+    string = string.replace("720p", "")
+    string = string.replace("480p", "")
     string = safe_name(string)
-    return string.replace(u's h i e l d', u'SHIELD').replace(u'c s i', u'CSI')
+    return string.replace("s h i e l d", "SHIELD").replace("c s i", "CSI")
 
 
-def safe_name(string, charset='utf-8', replacing=False):
+def safe_name(string, charset="utf-8", replacing=False):
     """
     Make the name directory and filename safe
     :param charset: encoding
@@ -137,12 +138,26 @@ def safe_name(string, charset='utf-8', replacing=False):
     """
     string = normalize_string(string, charset, replacing)
     string = string.lower().title()
-    keys = {u'*': u' ', u'/': u' ', u':': u' ', u'<': u' ', u'>': u' ', u'?': u' ', u'|': u' ', u'_': u' ',
-            u'.': u' ', u')': u' ', u'(': u' ', u'[': u' ', u']': u' ', u'-': u' '}
+    keys = {
+        "*": " ",
+        "/": " ",
+        ":": " ",
+        "<": " ",
+        ">": " ",
+        "?": " ",
+        "|": " ",
+        "_": " ",
+        ".": " ",
+        ")": " ",
+        "(": " ",
+        "[": " ",
+        "]": " ",
+        "-": " ",
+    }
     for key in keys.keys():
         string = string.replace(key, keys[key])
 
-    string = re.sub(u' +', u' ', string)
+    string = re.sub(" +", " ", string)
     return string
 
 
@@ -160,35 +175,35 @@ def normalize_string(string, charset=None, replacing=False):
     """
     if not isinstance(string, unicode):
         try:
-            if re.search(u'=[0-9a-fA-F]{2}', string):
-                string = py2_decode(string, 'Quoted-printable')
+            if re.search("=[0-9a-fA-F]{2}", string):
+                string = py2_decode(string, "Quoted-printable")
 
-            string = json.loads(u'%s' % string, encoding=charset)
+            string = json.loads("%s" % string, encoding=charset)
 
         except ValueError:
             try:
-                string = unicode(eval(string), 'raw_unicode_escape')
+                string = unicode(eval(string), "raw_unicode_escape")
 
             except (SyntaxError, NameError):
-                string = py2_decode(string, 'latin-1')
+                string = py2_decode(string, "latin-1")
                 pass
 
             except TypeError:
-                string = unicode(string, errors='ignore')
+                string = unicode(string, errors="ignore")
                 pass
 
         except LookupError:
-            return u''
+            return ""
 
         except TypeError:
-            string = unicode(string, errors='ignore')
+            string = unicode(string, errors="ignore")
             pass
 
     try:
         string = remove_control_chars(string)
         string = fix_bad_unicode(string)
         string = unquote(string)
-        string = string.replace(u'<![CDATA[', u'').replace(u']]', u'')
+        string = string.replace("<![CDATA[", "").replace("]]", "")
 
         if PY3:
             string = html.unescape(string)
@@ -196,7 +211,7 @@ def normalize_string(string, charset=None, replacing=False):
             string = HTMLParser().unescape(string)
 
         if replacing:
-            string = string.replace(u"'", '')
+            string = string.replace("'", "")
 
         string = string.lower()
     except:
@@ -272,8 +287,7 @@ def fix_bad_unicode(string):
         This text was never Unicode at all…
     """
     if not isinstance(string, unicode):
-        raise TypeError("This isn't even decoded into Unicode yet. "
-                        'Decode it first.')
+        raise TypeError("This isn't even decoded into Unicode yet. " "Decode it first.")
     if len(string) == 0:
         return string
 
@@ -310,15 +324,17 @@ def fix_bad_unicode(string):
                 return fix_bad_unicode(good_text)
         except Exception as e:
             import traceback
+
             logging.warning("Could not fix unicode string: %s" % repr(e))
             map(logging.debug, traceback.format_exc().split("\n"))
             pass
 
     return string
 
+
 def reinterpret_latin1_as_utf8(wrong_text):
-    new_bytes = py2_encode(wrong_text, 'latin-1', 'replace')
-    return py2_decode(new_bytes, 'utf-8', 'replace')
+    new_bytes = py2_encode(wrong_text, "latin-1", "replace")
+    return py2_decode(new_bytes, "utf-8", "replace")
 
 
 def reinterpret_windows1252_as_utf8(wrong_text):
@@ -333,12 +349,12 @@ def reinterpret_windows1252_as_utf8(wrong_text):
     altered_bytes = []
     for char in wrong_text:
         if ord(char) in WINDOWS_1252_GREMLINS:
-            altered_bytes.append(py2_encode(char, 'WINDOWS_1252'))
+            altered_bytes.append(py2_encode(char, "WINDOWS_1252"))
 
         else:
-            altered_bytes.append(py2_encode(char, 'latin-1', 'replace'))
+            altered_bytes.append(py2_encode(char, "latin-1", "replace"))
 
-    return py2_decode(''.join(altered_bytes), 'utf-8', 'replace')
+    return py2_decode("".join(altered_bytes), "utf-8", "replace")
 
 
 def reinterpret_latin1_as_windows1252(wrong_text):
@@ -350,7 +366,7 @@ def reinterpret_latin1_as_windows1252(wrong_text):
     :return: corrected text
     :rtype: str or unicode
     """
-    return py2_decode(py2_encode(wrong_text, 'latin-1'), 'WINDOWS_1252', 'replace')
+    return py2_decode(py2_encode(wrong_text, "latin-1"), "WINDOWS_1252", "replace")
 
 
 def text_badness(text):
@@ -384,31 +400,31 @@ def text_badness(text):
             weird_things += SINGLE_BYTE_WEIRDNESS[index]
 
             if SINGLE_BYTE_LETTERS[index]:
-                prev_letter_script = 'latin'
+                prev_letter_script = "latin"
 
             else:
                 prev_letter_script = None
 
         else:
             category = unicodedata.category(char)
-            if category == 'Co':
+            if category == "Co":
                 # Unassigned or private use
                 errors += 1
 
-            elif index == 0xfffd:
+            elif index == 0xFFFD:
                 # Replacement character
                 errors += 1
 
             elif index in WINDOWS_1252_GREMLINS:
-                low_char = char.encode('WINDOWS_1252').decode('latin-1')
+                low_char = char.encode("WINDOWS_1252").decode("latin-1")
                 weird_things += SINGLE_BYTE_WEIRDNESS[ord(low_char)] - 0.5
 
-            if category.startswith('L'):
+            if category.startswith("L"):
                 # It's a letter. What kind of letter? This is typically found
                 # in the first word of the letter's Unicode name.
                 name = unicodedata.name(char)
                 script_name = name.split()[0]
-                freq, script = SCRIPT_TABLE.get(script_name, (0, 'other'))
+                freq, script = SCRIPT_TABLE.get(script_name, (0, "other"))
                 if prev_letter_script:
                     if script != prev_letter_script:
                         very_weird_things += 1
@@ -498,30 +514,267 @@ WINDOWS_1252_CODEPOINTS = list(range(256)) + WINDOWS_1252_GREMLINS
 
 SINGLE_BYTE_WEIRDNESS = (
     #   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-    5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 5,  # 0x00
-    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  # 0x10
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 0x20
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 0x30
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 0x40
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 0x50
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 0x60
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5,  # 0x70
-    2, 5, 1, 4, 1, 1, 3, 3, 4, 3, 1, 1, 1, 5, 1, 5,  # 0x80
-    5, 1, 1, 1, 1, 3, 1, 1, 4, 1, 1, 1, 1, 5, 1, 1,  # 0x90
-    1, 0, 2, 2, 3, 2, 4, 2, 4, 2, 2, 0, 3, 1, 1, 4,  # 0xa0
-    2, 2, 3, 3, 4, 3, 3, 2, 4, 4, 4, 0, 3, 3, 3, 0,  # 0xb0
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 0xc0
-    1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0,  # 0xd0
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 0xe0
-    1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0,  # 0xf0
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    0,
+    0,
+    5,
+    5,
+    5,
+    5,
+    5,  # 0x00
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,  # 0x10
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,  # 0x20
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,  # 0x30
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,  # 0x40
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,  # 0x50
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,  # 0x60
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    5,  # 0x70
+    2,
+    5,
+    1,
+    4,
+    1,
+    1,
+    3,
+    3,
+    4,
+    3,
+    1,
+    1,
+    1,
+    5,
+    1,
+    5,  # 0x80
+    5,
+    1,
+    1,
+    1,
+    1,
+    3,
+    1,
+    1,
+    4,
+    1,
+    1,
+    1,
+    1,
+    5,
+    1,
+    1,  # 0x90
+    1,
+    0,
+    2,
+    2,
+    3,
+    2,
+    4,
+    2,
+    4,
+    2,
+    2,
+    0,
+    3,
+    1,
+    1,
+    4,  # 0xa0
+    2,
+    2,
+    3,
+    3,
+    4,
+    3,
+    3,
+    2,
+    4,
+    4,
+    4,
+    0,
+    3,
+    3,
+    3,
+    0,  # 0xb0
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,  # 0xc0
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,  # 0xd0
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,  # 0xe0
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,  # 0xf0
 )
 
 # Pre-cache the Unicode data saying which of these first 256 characters are
 # letters. We'll need it often.
-SINGLE_BYTE_LETTERS = [
-    unicodedata.category(chr(i)).startswith('L')
-    for i in range(256)
-]
+SINGLE_BYTE_LETTERS = [unicodedata.category(chr(i)).startswith("L") for i in range(256)]
 
 # A table telling us how to interpret the first word of a letter's Unicode
 # name. The number indicates how frequently we expect this script to be used
@@ -534,31 +787,31 @@ SINGLE_BYTE_LETTERS = [
 # into category 'cjk'. Letters of different categories are assumed not to
 # appear next to each other often.
 SCRIPT_TABLE = {
-    'LATIN': (3, 'latin'),
-    'CJK': (2, 'cjk'),
-    'ARABIC': (2, 'arabic'),
-    'CYRILLIC': (2, 'cyrillic'),
-    'GREEK': (2, 'greek'),
-    'HEBREW': (2, 'hebrew'),
-    'KATAKANA': (2, 'cjk'),
-    'HIRAGANA': (2, 'cjk'),
-    'HIRAGANA-KATAKANA': (2, 'cjk'),
-    'HANGUL': (2, 'cjk'),
-    'DEVANAGARI': (2, 'devanagari'),
-    'THAI': (2, 'thai'),
-    'FULLWIDTH': (2, 'cjk'),
-    'MODIFIER': (2, None),
-    'HALFWIDTH': (1, 'cjk'),
-    'BENGALI': (1, 'bengali'),
-    'LAO': (1, 'lao'),
-    'KHMER': (1, 'khmer'),
-    'TELUGU': (1, 'telugu'),
-    'MALAYALAM': (1, 'malayalam'),
-    'SINHALA': (1, 'sinhala'),
-    'TAMIL': (1, 'tamil'),
-    'GEORGIAN': (1, 'georgian'),
-    'ARMENIAN': (1, 'armenian'),
-    'KANNADA': (1, 'kannada'),  # mostly used for looks of disapproval
-    'MASCULINE': (1, 'latin'),
-    'FEMININE': (1, 'latin')
+    "LATIN": (3, "latin"),
+    "CJK": (2, "cjk"),
+    "ARABIC": (2, "arabic"),
+    "CYRILLIC": (2, "cyrillic"),
+    "GREEK": (2, "greek"),
+    "HEBREW": (2, "hebrew"),
+    "KATAKANA": (2, "cjk"),
+    "HIRAGANA": (2, "cjk"),
+    "HIRAGANA-KATAKANA": (2, "cjk"),
+    "HANGUL": (2, "cjk"),
+    "DEVANAGARI": (2, "devanagari"),
+    "THAI": (2, "thai"),
+    "FULLWIDTH": (2, "cjk"),
+    "MODIFIER": (2, None),
+    "HALFWIDTH": (1, "cjk"),
+    "BENGALI": (1, "bengali"),
+    "LAO": (1, "lao"),
+    "KHMER": (1, "khmer"),
+    "TELUGU": (1, "telugu"),
+    "MALAYALAM": (1, "malayalam"),
+    "SINHALA": (1, "sinhala"),
+    "TAMIL": (1, "tamil"),
+    "GEORGIAN": (1, "georgian"),
+    "ARMENIAN": (1, "armenian"),
+    "KANNADA": (1, "kannada"),  # mostly used for looks of disapproval
+    "MASCULINE": (1, "latin"),
+    "FEMININE": (1, "latin"),
 }

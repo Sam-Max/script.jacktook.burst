@@ -7,7 +7,7 @@ Burst processing thread
 from __future__ import unicode_literals
 import logging
 from burst.kodi import get_setting, set_setting
-from future.utils import PY3, iteritems
+from .compat import PY3, iteritems
 import re
 import json
 import time

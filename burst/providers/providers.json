@@ -2263,9 +2263,9 @@
         "season_keywords": "{title:en:original} s{season:2}",
         "season_query": "?mode=search&search_string=QUERY&category=18;41;49&format=json_extended&app_id=script.jacktook.burst&token=TOKEN",
         "separator": "+",
-        "show_query": "?mode=search&search_string=QUERY&category=18;41;49&format=json_extended&app_id=script.elementum.burst&token=TOKEN",
+        "show_query": "?mode=search&search_string=QUERY&category=18;41;49&format=json_extended&app_id=script.jacktook.burst&token=TOKEN",
         "subpage": false,
-        "token": "?get_token=get_token&app_id=script.elementum.burst",
+        "token": "?get_token=get_token&app_id=script.jacktook.burst",
         "tv_extra": null,
         "tv_keywords": "{title:en:original} s{season:2}e{episode:2}",
         "tv_keywords_fallback": "{title:en:original} s{season:2}"

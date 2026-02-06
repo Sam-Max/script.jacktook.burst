@@ -6,7 +6,7 @@ Burst web client
 
 import logging
 from burst.kodi import get_setting
-from future.utils import PY3, iteritems
+from .compat import PY3, iteritems
 
 import re
 import os
@@ -475,6 +475,7 @@ def patched_create_connection(address, *args, **kwargs):
     hostname = MyResolver(host)
 
     return _orig_create_connection((hostname, port), *args, **kwargs)
+
 
 def change_agent(userAgent):
     global USER_AGENT

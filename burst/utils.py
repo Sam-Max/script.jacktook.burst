@@ -5,13 +5,15 @@ Burst utilities
 """
 
 from burst.kodi import get_setting
-from future.utils import PY2, PY3, iteritems
+from .compat import PY2, PY3, iteritems
 
 import os
 import re
 from .providers.definitions import definitions, translatePath
+
 if PY3:
     from urllib.parse import urlparse
+
     basestring = str
     unicode = str
 else:
@@ -28,11 +30,11 @@ ADDON_VERSION = ADDON.getAddonInfo("version")
 PATH_ADDONS = translatePath("special://home/addons/")
 PATH_TEMP = translatePath("special://temp")
 if not ADDON_PATH:
-    ADDON_PATH = '..'
+    ADDON_PATH = ".."
 
 
 class Magnet:
-    """ Magnet link parsing class
+    """Magnet link parsing class
 
     Args:
         magnet (str): A magnet link string
@@ -42,20 +44,21 @@ class Magnet:
         name      (str): Name of torrent
         trackers (list): List of trackers in magnet link
     """
-    def __init__(self, magnet):
-        self.magnet = magnet + '&'
 
-        info_hash = re.search(r'urn:btih:(\w+)&', self.magnet, re.IGNORECASE)
+    def __init__(self, magnet):
+        self.magnet = magnet + "&"
+
+        info_hash = re.search(r"urn:btih:(\w+)&", self.magnet, re.IGNORECASE)
         self.info_hash = None
         if info_hash:
             self.info_hash = info_hash.group(1)
 
-        name = re.search('dn=(.*?)&', self.magnet)
+        name = re.search("dn=(.*?)&", self.magnet)
         self.name = None
         if name:
-            self.name = name.group(1).replace('+', ' ').title()
+            self.name = name.group(1).replace("+", " ").title()
 
-        self.trackers = re.findall('tr=(.*?)&', self.magnet)
+        self.trackers = re.findall("tr=(.*?)&", self.magnet)
 
 
 def get_domain(url):
@@ -63,7 +66,7 @@ def get_domain(url):
         url = "http://" + url
 
     parsed_uri = urlparse(url)
-    domain = '{uri.netloc}'.format(uri=parsed_uri)
+    domain = "{uri.netloc}".format(uri=parsed_uri)
     return domain
 
 
@@ -75,10 +78,12 @@ def get_protocol(url):
 
     return None
 
+
 def with_defaults(definition):
-    if 'login_prerequest' not in definition:
-        definition['login_prerequest'] = ''
+    if "login_prerequest" not in definition:
+        definition["login_prerequest"] = ""
     return definition
+
 
 def get_alias(definition, alias):
     definition["alias"] = ""
@@ -102,21 +107,31 @@ def get_alias(definition, alias):
                 if isinstance(definition[k], basestring):
                     definition[k] = definition[k].replace(old_domain, new_domain)
                     if protocol:
-                        definition[k] = definition[k].replace("http://", protocol + "://")
-                        definition[k] = definition[k].replace("https://", protocol + "://")
+                        definition[k] = definition[k].replace(
+                            "http://", protocol + "://"
+                        )
+                        definition[k] = definition[k].replace(
+                            "https://", protocol + "://"
+                        )
 
             for k in definition["parser"]:
                 if isinstance(definition["parser"][k], basestring):
-                    definition["parser"][k] = definition["parser"][k].replace(old_domain, new_domain)
+                    definition["parser"][k] = definition["parser"][k].replace(
+                        old_domain, new_domain
+                    )
                     if protocol:
-                        definition["parser"][k] = definition["parser"][k].replace("http://", protocol + "://")
-                        definition["parser"][k] = definition["parser"][k].replace("https://", protocol + "://")
+                        definition["parser"][k] = definition["parser"][k].replace(
+                            "http://", protocol + "://"
+                        )
+                        definition["parser"][k] = definition["parser"][k].replace(
+                            "https://", protocol + "://"
+                        )
 
     return definition
 
 
 def get_providers():
-    """ Utility method to get all provider IDs available in the definitions
+    """Utility method to get all provider IDs available in the definitions
 
     Returns:
         list: All available provider IDs
@@ -128,46 +143,52 @@ def get_providers():
 
 
 def get_enabled_providers(method):
-    """ Utility method to get all enabled provider IDs
+    """Utility method to get all enabled provider IDs
 
     Returns:
         list: All available enabled provider IDs
     """
     results = []
-    content_type_string = 'Shows'  # if method == 'season' or method == 'episode' or method == 'anime'
-    content_type_int = '2'
-    if method == 'general':
-        content_type_string = 'All'
-        content_type_int = '0'
-    elif method == 'movie':
-        content_type_string = 'Movies'
-        content_type_int = '1'
+    content_type_string = (
+        "Shows"  # if method == 'season' or method == 'episode' or method == 'anime'
+    )
+    content_type_int = "2"
+    if method == "general":
+        content_type_string = "All"
+        content_type_int = "0"
+    elif method == "movie":
+        content_type_string = "Movies"
+        content_type_int = "1"
     for provider in definitions:
-        if 'enabled' in definitions[provider] and not definitions[provider]['enabled']:
+        if "enabled" in definitions[provider] and not definitions[provider]["enabled"]:
             continue
 
-        if get_setting('use_%s' % provider, bool):
-            contains = get_setting('%s_contains' % provider, choices=('All', 'Movies', 'Shows'))
-            if not contains or contains == 'All' or contains == '0':  # treat absence of setting as All
+        if get_setting("use_%s" % provider, bool):
+            contains = get_setting(
+                "%s_contains" % provider, choices=("All", "Movies", "Shows")
+            )
+            if (
+                not contains or contains == "All" or contains == "0"
+            ):  # treat absence of setting as All
                 results.append(provider)
             elif contains == content_type_string or contains == content_type_int:
                 results.append(provider)
-        if 'custom' in definitions[provider] and definitions[provider]['custom']:
+        if "custom" in definitions[provider] and definitions[provider]["custom"]:
             results.append(provider)
     return results
 
 
 def get_icon_path():
-    """ Utility method to Burst's icon path
+    """Utility method to Burst's icon path
 
     Returns:
         str: Path to Burst's icon
     """
-    return os.path.join(ADDON_PATH, 'icon.png')
+    return os.path.join(ADDON_PATH, "icon.png")
 
 
 def translation(id_value):
-    """ Utility method to get translations
+    """Utility method to get translations
 
     Args:
         id_value (int): Code of translation to get
@@ -179,7 +200,7 @@ def translation(id_value):
 
 
 def get_int(string):
-    """ Utility method to convert a number contained in a string to an integer
+    """Utility method to convert a number contained in a string to an integer
 
     Args:
         string (str): Number contained in a string
@@ -203,7 +224,7 @@ def get_int(string):
 
 
 def get_float(string):
-    """ Utility method to convert a number contained in a string to a float
+    """Utility method to convert a number contained in a string to a float
 
     Args:
         string (str): Number contained in a string
@@ -218,12 +239,12 @@ def get_float(string):
     except:
         try:
             cleaned = clean_number(string)
-            floated = re.findall(r'[\d.]+', cleaned)[0]
+            floated = re.findall(r"[\d.]+", cleaned)[0]
             return float(floated)
         except:
             pass
     try:
-        string = string[:clean_number(string).find('.')]
+        string = string[: clean_number(string).find(".")]
         return float(filter(type(string).isdigit, string))
     except:
         pass
@@ -234,7 +255,7 @@ def get_float(string):
 
 
 def size_int(size_txt):
-    """ Utility method to convert a file size contained in a string to an integer of bytes
+    """Utility method to convert a file size contained in a string to an integer of bytes
 
     Args:
         string (str): File size with suffix contained in a string, eg. ``1.21 GB``
@@ -248,13 +269,13 @@ def size_int(size_txt):
         try:
             size_txt = size_txt.upper()
             size = get_float(size_txt)
-            if 'K' in size_txt:
+            if "K" in size_txt:
                 size *= 1e3
-            if 'M' in size_txt:
+            if "M" in size_txt:
                 size *= 1e6
-            if 'G' in size_txt:
+            if "G" in size_txt:
                 size *= 1e9
-            if 'T' in size_txt:
+            if "T" in size_txt:
                 size *= 1e12
             return size
         except:
@@ -263,7 +284,7 @@ def size_int(size_txt):
 
 
 def clean_number(string):
-    """ Utility method to clean up a number contained in a string to dot decimal format
+    """Utility method to clean up a number contained in a string to dot decimal format
 
     Args:
         string (str): Number contained in a string
@@ -271,21 +292,21 @@ def clean_number(string):
     Returns:
         str: The formatted number as a string
     """
-    comma = string.find(',')
-    point = string.find('.')
+    comma = string.find(",")
+    point = string.find(".")
     if comma > 0 and point > 0:
         if comma < point:
-            string = string.replace(',', '')
+            string = string.replace(",", "")
         else:
-            string = string.replace('.', '')
-            string = string.replace(',', '.')
+            string = string.replace(".", "")
+            string = string.replace(",", ".")
     elif comma > 0:
-        string = string.replace(',', '.')
+        string = string.replace(",", ".")
     return string
 
 
 def clean_size(string):
-    """ Utility method to remove unnecessary information from a file size string, eg. '6.5 GBytes' -> '6.5 GB'
+    """Utility method to remove unnecessary information from a file size string, eg. '6.5 GBytes' -> '6.5 GB'
 
     Args:
         string (str): File size string to clean up
@@ -294,16 +315,16 @@ def clean_size(string):
         str: Cleaned up file size
     """
     if string:
-        pos = string.rfind('B')
+        pos = string.rfind("B")
         if pos > 0:
-            string = string[:pos] + 'B'
+            string = string[:pos] + "B"
     else:
         string = ""
     return string
 
 
-def sizeof(num, suffix='B'):
-    """ Utility method to convert a file size in bytes to a human-readable format
+def sizeof(num, suffix="B"):
+    """Utility method to convert a file size in bytes to a human-readable format
 
     Args:
         num    (int): Number of bytes
@@ -312,15 +333,15 @@ def sizeof(num, suffix='B'):
     Returns:
         str: The formatted file size as a string, eg. ``1.21 GB``
     """
-    for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
+    for unit in ["", "K", "M", "G", "T", "P", "E", "Z"]:
         if abs(num) < 1024.0:
             return "%3.1f %s%s" % (num, unit, suffix)
         num /= 1024.0
-    return "%.1f %s%s" % (num, 'Y', suffix)
+    return "%.1f %s%s" % (num, "Y", suffix)
 
 
 def notify(message, image=None):
-    """ Creates a notification dialog
+    """Creates a notification dialog
 
     Args:
         message (str): The message to show in the dialog
@@ -332,17 +353,16 @@ def notify(message, image=None):
 
 
 def clear_cache():
-    """ Clears cookies from Burst's cache
-    """
+    """Clears cookies from Burst's cache"""
     cookies_path = os.path.join(translatePath("special://temp"), "burst")
     if os.path.isdir(cookies_path):
         for f in os.listdir(cookies_path):
-            if re.search('.jar', f):
+            if re.search(".jar", f):
                 os.remove(os.path.join(cookies_path, f))
 
 
-def encode_dict(dict_in, charset='utf8'):
-    """ Encodes dict values to UTF-8
+def encode_dict(dict_in, charset="utf8"):
+    """Encodes dict values to UTF-8
 
     Args:
         dict_in (dict): Input dictionary with unicode values
@@ -354,16 +374,16 @@ def encode_dict(dict_in, charset='utf8'):
         dict_out = {}
         for k, v in iteritems(dict_in):
             if PY2 and isinstance(v, unicode):
-                v = v.encode('utf8')
+                v = v.encode("utf8")
             elif PY2 and isinstance(v, str):
-                v = v.decode('utf8')
+                v = v.decode("utf8")
             elif PY3 and isinstance(v, str):
                 v = v
             elif PY3 and isinstance(v, bytes):
                 v = v.decode()
 
-            if charset != 'utf8':
-                v = v.decode('utf8').encode(charset)
+            if charset != "utf8":
+                v = v.decode("utf8").encode(charset)
 
             dict_out[k] = v
         return dict_out

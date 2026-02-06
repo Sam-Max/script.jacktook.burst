@@ -4,23 +4,22 @@
 # Created on:  28.11.2016
 # Licence:     GPL v.3: http://www.gnu.org/copyleft/gpl.html
 
-""""
+""" "
 All the credit of this code to Iury de oliveira gomes figueiredo
 Easy Html Parser is an AST generator for html/xml documents. You can easily delete/insert/extract tags in html/xml
 documents as well as look for patterns.
 https://github.com/iogf/ehp
 """
 
-from future.utils import PY3
+from ..compat import PY3, xrange
 
 if PY3:
-    from future.builtins import range as xrange
     from html.parser import HTMLParser
 else:
     from .HTMLParser import HTMLParser
 from collections import deque
 
-version = '1.3b'
+version = "1.3b"
 DATA = 1
 META = 2
 COMMENT = 3
@@ -58,7 +57,7 @@ class Attribute(dict):
         # which are inside self.
         # """
 
-        data = ''
+        data = ""
         for key, value in self.items():
             pair = '%s="%s" ' % (key, value)
             data += pair
@@ -98,14 +97,16 @@ class Root(list):
         This str function returns a string representation of the structure.
         """
 
-        html = ''
+        html = ""
 
         for ind in self:
-            html = '%s%s' % (html, ind)
+            html = "%s%s" % (html, ind)
 
         return html
 
-    def __call__(self, tag=None, order=1, select=None, attribute='text', divider=('', 1)):
+    def __call__(
+        self, tag=None, order=1, select=None, attribute="text", divider=("", 1)
+    ):
         """
         It returns the text for a specific tag, order and matching the attributes in select.
 
@@ -133,12 +134,14 @@ class Root(list):
         wwww.google
 
         """
-        value_attrib = ''
+        value_attrib = ""
         if self is not None:
             if tag is not None:
                 if isinstance(select, tuple):
                     select = [select]
-                values_tag = self.find(tag) if select is None else self.find(tag, 1, 1, *select)
+                values_tag = (
+                    self.find(tag) if select is None else self.find(tag, 1, 1, *select)
+                )
                 value_tag = None
                 list_value_tag = list()
                 for item_tag in values_tag:
@@ -155,22 +158,22 @@ class Root(list):
             else:
                 value_tag = self
             if value_tag is not None:
-                if attribute == 'text':
+                if attribute == "text":
                     value_attrib = value_tag.text()
                 else:
                     value_attrib = value_tag.attr[attribute]
             else:
-                return ''
+                return ""
             if value_attrib is not None:
                 value_attrib = value_attrib.strip()
             else:
-                value_attrib = ''
-        if divider[0] != '':
+                value_attrib = ""
+        if divider[0] != "":
             result = value_attrib.split(divider[0])
             if len(result) > divider[1]:
                 return result[divider[1]].strip()
             else:
-                return ''
+                return ""
         return value_attrib
 
     def sail(self):
@@ -258,7 +261,7 @@ class Root(list):
         index = self.index(item)
         del self[index]
 
-    def find(self, name='', every=1, start=1, *args):
+    def find(self, name="", every=1, start=1, *args):
         """
         It is used to find all objects that match name.
 
@@ -299,7 +302,7 @@ class Root(list):
             if ind.name == name:
                 for key, values in args:
                     results = []
-                    for value in (values if isinstance(values, list) else [values]):
+                    for value in values if isinstance(values, list) else [values]:
                         for item in ind.attr[key].split():
                             results.append(value != item)
                     if not all(results):
@@ -312,15 +315,17 @@ class Root(list):
                         yield (ind)
 
     def find_once(self, tag=None, select=None, order=1):
-        """"
+        """ "
         It returns the nth (order) ocurrence from the tag matching with the attributes from select
         """
-        value_tag = Tag('html')
+        value_tag = Tag("html")
         if isinstance(select, tuple):
             select = [select]
         if self is not None and tag is not None:
-            values_tag = self.find(tag) if select is None else self.find(tag, 1, 1, *select)
-            value_tag = Tag('html')
+            values_tag = (
+                self.find(tag) if select is None else self.find(tag, 1, 1, *select)
+            )
+            value_tag = Tag("html")
             list_value_tag = list()
             for item_tag in values_tag:
                 list_value_tag.append(item_tag)
@@ -336,14 +341,18 @@ class Root(list):
         return value_tag
 
     def find_all(self, tag=None, select=None, every=1, start=1):
-        """"
+        """ "
         It returns all ocurrences from the tag matching with the attributes from select
         """
         result = []
         if isinstance(select, tuple):
             select = [select]
         if self is not None and tag is not None:
-            elem1 = self.find(tag, every, start) if select is None else self.find(tag, every, start, *select)
+            elem1 = (
+                self.find(tag, every, start)
+                if select is None
+                else self.find(tag, every, start, *select)
+            )
             result = list(elem1) if elem1 is not None else []
         return result
 
@@ -370,7 +379,7 @@ class Root(list):
             if ind.name == name:
                 for key, values in args:
                     results = []
-                    for value in (values if isinstance(values, list) else [values]):
+                    for value in values if isinstance(values, list) else [values]:
                         results.append(ind.attr[key] != value)
                     if all(results):
                         break
@@ -397,7 +406,7 @@ class Root(list):
         None
         """
 
-        return self.take('id', id_value)
+        return self.take("id", id_value)
 
     def take(self, *args):
         """
@@ -544,11 +553,11 @@ class Root(list):
         gamma
         """
 
-        data = ''
+        data = ""
 
         for ind in self.sail():
             if ind.name in args:
-                data = '%s%s%s' % (data, delim, ind)
+                data = "%s%s%s" % (data, delim, ind)
 
         return data
 
@@ -666,14 +675,14 @@ class Root(list):
         children then it returns all the *printable* characters
         for that node.
         """
-        return self.join('', DATA)
+        return self.join("", DATA)
 
     def write(self, filename):
         """
         It saves the structure to a file.
         """
 
-        fd = open(filename, 'w')
+        fd = open(filename, "w")
         fd.write(str(self))
         fd.close()
 
@@ -746,8 +755,7 @@ class Root(list):
         """
 
         for root, ind in self.sail_with_root():
-            yield ((root, root.name, root.attr),
-                   (ind, ind.name, ind.attr))
+            yield ((root, root.name, root.attr), (ind, ind.name, ind.attr))
 
     def insert_after(self, y, k):
         """
@@ -797,12 +805,12 @@ class Tag(Root):
         This function returns a string representation for a node.
         """
 
-        html = '<%s %s>' % (self.name, self.attr)
+        html = "<%s %s>" % (self.name, self.attr)
 
         for ind in self:
-            html = '%s%s' % (html, ind)
+            html = "%s%s" % (html, ind)
 
-        html += '</%s>' % self.name
+        html += "</%s>" % self.name
 
         return html
 
@@ -886,81 +894,72 @@ class XTag(Root):
         Root.__init__(self, name, attr)
 
     def __str__(self):
-        html = '<%s %s/>' % (self.name, self.attr)
+        html = "<%s %s/>" % (self.name, self.attr)
 
         return html
 
 
 class Meta(Root):
-    """
-
-    """
+    """ """
 
     def __init__(self, data):
         Root.__init__(self, META)
         self.data = data
 
     def __str__(self):
-        html = '<!%s>' % self.data
+        html = "<!%s>" % self.data
 
         return html
 
 
 class Code(Root):
-    """
-    """
+    """ """
 
     def __init__(self, data):
         Root.__init__(self, CODE)
         self.data = data
 
     def __str__(self):
-        html = '&#%s' % self.data
+        html = "&#%s" % self.data
 
         return html
 
 
 class Amp(Root):
-    """
-
-    """
+    """ """
 
     def __init__(self, data):
         Root.__init__(self, AMP)
         self.data = data
 
     def __str__(self):
-        html = '&%s' % self.data
+        html = "&%s" % self.data
 
         return html
 
 
 class Pi(Root):
-    """
-
-    """
+    """ """
 
     def __init__(self, data):
         Root.__init__(self, PI)
         self.data = data
 
     def __str__(self):
-        html = '<?%s>' % self.data
+        html = "<?%s>" % self.data
 
         return html
 
 
 class Comment(Root):
-    """
-
-    """
+    """ """
 
     def __init__(self, data):
         Root.__init__(self, COMMENT)
         self.data = data
 
     def __str__(self):
-        html = '<!--%s-->' % self.data
+        html = "<!--%s-->" % self.data
 
         return html
 
@@ -976,7 +975,7 @@ class Tree(object):
         hold all data inside the file.
         """
 
-        self.outmost = Root('')
+        self.outmost = Root("")
 
         self.stack = deque()
         self.stack.append(self.outmost)
@@ -986,7 +985,7 @@ class Tree(object):
         Clear the outmost and stack for a new parsing.
         """
 
-        self.outmost = Root('')
+        self.outmost = Root("")
         self.stack.clear()
         self.stack.append(self.outmost)
 
@@ -1036,9 +1035,7 @@ class Tree(object):
         top.append(item)
 
     def ynest(self, data):
-        """
-
-        """
+        """ """
 
         top = self.last()
 
@@ -1047,9 +1044,7 @@ class Tree(object):
         top.append(item)
 
     def mnest(self, data):
-        """
-
-        """
+        """ """
 
         top = self.last()
 
@@ -1058,9 +1053,7 @@ class Tree(object):
         top.append(item)
 
     def cnest(self, data):
-        """
-
-        """
+        """ """
 
         top = self.last()
 
@@ -1069,9 +1062,7 @@ class Tree(object):
         top.append(item)
 
     def rnest(self, data):
-        """
-
-        """
+        """ """
 
         top = self.last()
 
@@ -1080,9 +1071,7 @@ class Tree(object):
         top.append(item)
 
     def inest(self, data):
-        """
-
-        """
+        """ """
 
         top = self.last()
 
@@ -1125,7 +1114,7 @@ class Html(HTMLParser):
         It builds a structure from a file.
         """
 
-        fd = open(filename, 'r')
+        fd = open(filename, "r")
         data = fd.read()
         fd.close()
         return self.feed(data)
@@ -1174,40 +1163,29 @@ class Html(HTMLParser):
         self.structure.dnest(data)
 
     def handle_decl(self, decl):
-        """
-
-        """
+        """ """
         self.structure.ynest(decl)
 
     def unknown_decl(self, decl):
-        """
-
-        """
+        """ """
         self.structure.ynest(decl)
 
     def handle_charref(self, data):
-        """
-
-        """
+        """ """
 
         self.structure.cnest(data)
 
     def handle_entityref(self, data):
-        """
-
-        """
+        """ """
 
         self.structure.rnest(data)
 
     def handle_pi(self, data):
-        """
-        """
+        """ """
 
         self.structure.inest(data)
 
     def handle_comment(self, data):
-        """
-
-        """
+        """ """
 
         self.structure.mnest(data)
