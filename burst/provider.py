@@ -25,7 +25,7 @@ from .utils import (
     translation,
     get_icon_path,
 )
-from kodi_six import xbmc, xbmcaddon, py2_encode
+from kodi_six import xbmc, xbmcaddon, py2_encode, xbmcvfs
 
 if PY3:
     from urllib.parse import quote, unquote, urlparse
@@ -218,9 +218,9 @@ def process(
             return filtering.results
 
         url_search = filtering.url.replace("QUERY", query)
-        logging.error(url_search)
         url_search = url_search.replace("EXTRA", extra)
-        logging.error(url_search)
+        
+        logging.warning(url_search)
 
         url_search = url_search.replace(" ", definition["separator"])
         if definition["separator"] != "%20":
@@ -306,11 +306,8 @@ def process(
         elif token_auth:
             logging.info("[%s] Reusing previous token authorization" % provider)
         elif "private" in definition and definition["private"]:
-            logging.error("private")
             username = get_setting("%s_username" % provider, unicode)
-            logging.error(username)
             password = get_setting("%s_password" % provider, unicode)
-            logging.error(password)
             passkey = get_setting("%s_passkey" % provider, unicode)
             if not username and not password and not passkey:
                 for addon_name in (
@@ -516,16 +513,31 @@ def process(
                 notify(translation(32168) % (definition["name"]), image=get_icon_path())
 
         try:
-            filtering.results.extend(
-                generate_payload(
-                    provider,
-                    generator(provider, client),
-                    filtering,
-                    verify_name,
-                    verify_size,
-                )
+            new_results = generate_payload(
+                provider,
+                generator(provider, client),
+                filtering,
+                verify_name,
+                verify_size,
             )
+            filtering.results.extend(new_results)
+            if not new_results:
+                logging.warning(
+                    "[%s] No results for %s. Status: %s, Size: %d",
+                    provider,
+                    url_search,
+                    client.status,
+                    len(client.content) if client.content else 0,
+                )
         except Exception as e:
             logging.error("[%s] Error from payload generator: %s", provider, e)
+
+    if not filtering.results:
+        logging.debug(
+            "[%s] No results found. HTTP status: %s, Content length: %d",
+            provider,
+            client.status,
+            len(client.content) if client.content else 0,
+        )
 
     return filtering.results

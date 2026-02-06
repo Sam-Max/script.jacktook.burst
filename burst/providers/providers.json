@@ -55,7 +55,7 @@
         "anime_query": "",
         "base_url": "https://www.1337x.to/search/QUERYEXTRA/1/",
         "color": "FFFFFFFF",
-        "enabled": true,
+        "enabled": false,
         "general_extra": "",
         "general_keywords": "{title}",
         "general_query": "",
@@ -481,7 +481,8 @@
         "tv_keywords2": null,
         "tv_keywords_fallback": "{title:original:en} s{season:2}",
         "tv_keywords_fallback2": "{title:original:en} season {season}",
-        "tv_keywords_fallback3": "{title:original:en} {season:2}x01"
+        "tv_keywords_fallback3": "{title:original:en} {season:2}x01",
+        "headers": "{'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://bitsearch.to/'}"
     },
     "bt4g": {
         "anime_extra": "",
@@ -492,7 +493,7 @@
         "anime_query": "",
         "base_url": "https://bt4gprx.com/search?q=QUERYEXTRA&category=movie&orderby=seeders",
         "color": "FFFFFFFF",
-        "enabled": true,
+        "enabled": false,
         "general_extra": "",
         "general_keywords": "{title}",
         "general_query": "",
@@ -849,7 +850,7 @@
     },
     "eztv": {
         "anime_extra": null,
-        "anime_keywords": "'{title:original}' s{season:2}e{episode:2}",
+        "anime_keywords": "{title:original} s{season:2}e{episode:2}",
         "base_url": "https://eztvx.to/search/QUERYEXTRA",
         "post_data": "{'layout': 'def_wlinks'}",
         "color": "FFFFFFFF",
@@ -880,7 +881,7 @@
         "remove_special_characters": "'",
         "season_extra": "",
         "season_extra2": "",
-        "season_keywords": "'{title:original}' S{season:2}",
+        "season_keywords": "{title:original} S{season:2}",
         "season_keywords2": "",
         "season_query": "",
         "separator": "-",
@@ -888,7 +889,7 @@
         "subpage": false,
         "tv_extra": "",
         "tv_extra2": "",
-        "tv_keywords": "'{title:original}' s{season:2}e{episode:2}"
+        "tv_keywords": "{title:original} s{season:2}e{episode:2}"
     },
     "filebase": {
         "anime_keywords": "{title:en:ru}",
@@ -3604,7 +3605,7 @@
             "subresults": "torrents",
             "torrent": "url"
         },
-        "base_url": "https://yts.mx/api/v2/list_movies.json?query_term=QUERY&sort_by=seeds&order_by=desc",
+        "base_url": "https://yts.bz/api/v2/list_movies.json?query_term=QUERY&sort_by=seeds&order_by=desc",
         "color": "FF6AC045",
         "enabled": true,
         "general_extra": null,

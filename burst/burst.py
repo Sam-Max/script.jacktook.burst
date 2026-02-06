@@ -165,7 +165,7 @@ def search(payload, method="general"):
     if use_kodi_language:
         kodi_language = xbmc.getLanguage(xbmc.ISO_639_1)
         if not kodi_language:
-            logging.warning("Kodi returned empty language code...")
+            logging.info("Kodi returned empty language code...")
         elif "titles" not in payload or not payload["titles"]:
             logging.info("No translations available...")
         elif payload["titles"] and kodi_language not in payload["titles"]:

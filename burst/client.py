@@ -43,9 +43,9 @@ from requests.cookies import create_cookie
 
 logging = logging.getLogger(__name__)
 
-USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
 if os.name == "nt":
-    USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+    USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
 
 if get_setting("use_custom_user_agent", bool):
     agent = get_setting("custom_user_agent", unicode)
@@ -349,7 +349,7 @@ class Client:
         # Default headers for any request. Pretend like we are the usual browser.
         req_headers = {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-            "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,uk;q=0.6,pl;q=0.5",
+            "Accept-Language": "en-US,en;q=0.9",
             "Cache-Control": "max-age=0",
             "Content-Language": language,
             "Origin": url,
