@@ -4,37 +4,26 @@
 Burst utilities
 """
 
-from burst.kodi import get_setting
-from .compat import PY2, PY3, iteritems
-
 import os
 import re
-from .providers.definitions import definitions, translatePath
-
-if PY3:
-    from urllib.parse import urlparse
-
-    basestring = str
-    unicode = str
-else:
-    from urlparse import urlparse
-from kodi_six import xbmcgui, xbmcaddon
+import socket
+from threading import Lock
+from .kodi import get_setting
+from .providers.definitions import definitions
+from urllib.parse import urlparse
+import xbmcgui
+import xbmcaddon
 
 ADDON = xbmcaddon.Addon()
-ADDON_ID = ADDON.getAddonInfo("id")
 ADDON_NAME = ADDON.getAddonInfo("name")
 ADDON_PATH = ADDON.getAddonInfo("path")
 ADDON_ICON = ADDON.getAddonInfo("icon")
-ADDON_PROFILE = ADDON.getAddonInfo("profile")
-ADDON_VERSION = ADDON.getAddonInfo("version")
-PATH_ADDONS = translatePath("special://home/addons/")
-PATH_TEMP = translatePath("special://temp")
 if not ADDON_PATH:
-    ADDON_PATH = ".."
+    ADDON_PATH = '..'
 
 
 class Magnet:
-    """Magnet link parsing class
+    """ Magnet link parsing class
 
     Args:
         magnet (str): A magnet link string
@@ -44,21 +33,20 @@ class Magnet:
         name      (str): Name of torrent
         trackers (list): List of trackers in magnet link
     """
-
     def __init__(self, magnet):
-        self.magnet = magnet + "&"
+        self.magnet = magnet + '&'
 
-        info_hash = re.search(r"urn:btih:(\w+)&", self.magnet, re.IGNORECASE)
+        info_hash = re.search(r'urn:btih:(\w+)&', self.magnet, re.IGNORECASE)
         self.info_hash = None
         if info_hash:
             self.info_hash = info_hash.group(1)
 
-        name = re.search("dn=(.*?)&", self.magnet)
+        name = re.search('dn=(.*?)&', self.magnet)
         self.name = None
         if name:
-            self.name = name.group(1).replace("+", " ").title()
+            self.name = name.group(1).replace('+', ' ').title()
 
-        self.trackers = re.findall("tr=(.*?)&", self.magnet)
+        self.trackers = re.findall('tr=(.*?)&', self.magnet)
 
 
 def get_domain(url):
@@ -66,7 +54,7 @@ def get_domain(url):
         url = "http://" + url
 
     parsed_uri = urlparse(url)
-    domain = "{uri.netloc}".format(uri=parsed_uri)
+    domain = '{uri.netloc}'.format(uri=parsed_uri)
     return domain
 
 
@@ -78,11 +66,14 @@ def get_protocol(url):
 
     return None
 
-
 def with_defaults(definition):
-    if "login_prerequest" not in definition:
-        definition["login_prerequest"] = ""
+    if 'login_prerequest' not in definition:
+        definition['login_prerequest'] = ''
     return definition
+
+def use_opennic_dns():
+    # use_opennic_dns is a sub-setting of use_custom_dns and defaults to true
+    return get_setting("use_custom_dns", bool) and get_setting("use_opennic_dns", bool)
 
 
 def get_alias(definition, alias):
@@ -104,91 +95,63 @@ def get_alias(definition, alias):
 
             # Replace all occurrences of old domain name with new one
             for k in definition:
-                if isinstance(definition[k], basestring):
+                if isinstance(definition[k], str):
                     definition[k] = definition[k].replace(old_domain, new_domain)
                     if protocol:
-                        definition[k] = definition[k].replace(
-                            "http://", protocol + "://"
-                        )
-                        definition[k] = definition[k].replace(
-                            "https://", protocol + "://"
-                        )
+                        definition[k] = definition[k].replace("http://", protocol + "://")
+                        definition[k] = definition[k].replace("https://", protocol + "://")
 
             for k in definition["parser"]:
-                if isinstance(definition["parser"][k], basestring):
-                    definition["parser"][k] = definition["parser"][k].replace(
-                        old_domain, new_domain
-                    )
+                if isinstance(definition["parser"][k], str):
+                    definition["parser"][k] = definition["parser"][k].replace(old_domain, new_domain)
                     if protocol:
-                        definition["parser"][k] = definition["parser"][k].replace(
-                            "http://", protocol + "://"
-                        )
-                        definition["parser"][k] = definition["parser"][k].replace(
-                            "https://", protocol + "://"
-                        )
+                        definition["parser"][k] = definition["parser"][k].replace("http://", protocol + "://")
+                        definition["parser"][k] = definition["parser"][k].replace("https://", protocol + "://")
 
     return definition
 
 
-def get_providers():
-    """Utility method to get all provider IDs available in the definitions
-
-    Returns:
-        list: All available provider IDs
-    """
-    results = []
-    for provider in definitions:
-        results.append(provider)
-    return results
-
-
 def get_enabled_providers(method):
-    """Utility method to get all enabled provider IDs
+    """ Utility method to get all enabled provider IDs
 
     Returns:
         list: All available enabled provider IDs
     """
     results = []
-    content_type_string = (
-        "Shows"  # if method == 'season' or method == 'episode' or method == 'anime'
-    )
-    content_type_int = "2"
-    if method == "general":
-        content_type_string = "All"
-        content_type_int = "0"
-    elif method == "movie":
-        content_type_string = "Movies"
-        content_type_int = "1"
+    content_type_string = 'Shows'  # if method == 'season' or method == 'episode' or method == 'anime'
+    content_type_int = '2'
+    if method == 'general':
+        content_type_string = 'All'
+        content_type_int = '0'
+    elif method == 'movie':
+        content_type_string = 'Movies'
+        content_type_int = '1'
     for provider in definitions:
-        if "enabled" in definitions[provider] and not definitions[provider]["enabled"]:
+        if 'enabled' in definitions[provider] and not definitions[provider]['enabled']:
             continue
 
-        if get_setting("use_%s" % provider, bool):
-            contains = get_setting(
-                "%s_contains" % provider, choices=("All", "Movies", "Shows")
-            )
-            if (
-                not contains or contains == "All" or contains == "0"
-            ):  # treat absence of setting as All
+        if 'custom' in definitions[provider] and definitions[provider]['custom']:
+            results.append(provider)
+        elif get_setting('use_%s' % provider, bool):
+            contains = get_setting('%s_contains' % provider, choices=('All', 'Movies', 'Shows'))
+            if not contains or contains == 'All' or contains == '0':  # treat absence of setting as All
                 results.append(provider)
             elif contains == content_type_string or contains == content_type_int:
                 results.append(provider)
-        if "custom" in definitions[provider] and definitions[provider]["custom"]:
-            results.append(provider)
     return results
 
 
 def get_icon_path():
-    """Utility method to Burst's icon path
+    """ Utility method to Burst's icon path
 
     Returns:
         str: Path to Burst's icon
     """
-    return os.path.join(ADDON_PATH, "icon.png")
+    return os.path.join(ADDON_PATH, 'icon.png')
 
 
 def translation(id_value):
-    """Utility method to get translations
+    """ Utility method to get translations
 
     Args:
         id_value (int): Code of translation to get
@@ -200,7 +163,7 @@ def translation(id_value):
 
 
 def get_int(string):
-    """Utility method to convert a number contained in a string to an integer
+    """ Utility method to convert a number contained in a string to an integer
 
     Args:
         string (str): Number contained in a string
@@ -213,18 +176,14 @@ def get_int(string):
     try:
         return int(string)
     except:
-        try:
-            return int(get_float(string))
-        except:
-            pass
-    try:
-        return int(filter(type(string).isdigit, string))
-    except:
-        return 0
+        pass
+    # Counters on sites come with thousand separators, ie. "1,234", "1.234" or "1 234"
+    match = re.search(r'\d[\d,. ]*', '%s' % string)
+    return int(re.sub(r'\D', '', match.group(0))) if match else 0
 
 
 def get_float(string):
-    """Utility method to convert a number contained in a string to a float
+    """ Utility method to convert a number contained in a string to a float
 
     Args:
         string (str): Number contained in a string
@@ -239,23 +198,14 @@ def get_float(string):
     except:
         try:
             cleaned = clean_number(string)
-            floated = re.findall(r"[\d.]+", cleaned)[0]
+            floated = re.findall(r'[\d.]+', cleaned)[0]
             return float(floated)
         except:
-            pass
-    try:
-        string = string[: clean_number(string).find(".")]
-        return float(filter(type(string).isdigit, string))
-    except:
-        pass
-    try:
-        return float(filter(type(string).isdigit, string))
-    except:
-        return float(0)
+            return float(0)
 
 
 def size_int(size_txt):
-    """Utility method to convert a file size contained in a string to an integer of bytes
+    """ Utility method to convert a file size contained in a string to an integer of bytes
 
     Args:
         string (str): File size with suffix contained in a string, eg. ``1.21 GB``
@@ -269,13 +219,13 @@ def size_int(size_txt):
         try:
             size_txt = size_txt.upper()
             size = get_float(size_txt)
-            if "K" in size_txt:
+            if 'K' in size_txt:
                 size *= 1e3
-            if "M" in size_txt:
+            if 'M' in size_txt:
                 size *= 1e6
-            if "G" in size_txt:
+            if 'G' in size_txt:
                 size *= 1e9
-            if "T" in size_txt:
+            if 'T' in size_txt:
                 size *= 1e12
             return size
         except:
@@ -284,7 +234,7 @@ def size_int(size_txt):
 
 
 def clean_number(string):
-    """Utility method to clean up a number contained in a string to dot decimal format
+    """ Utility method to clean up a number contained in a string to dot decimal format
 
     Args:
         string (str): Number contained in a string
@@ -292,21 +242,21 @@ def clean_number(string):
     Returns:
         str: The formatted number as a string
     """
-    comma = string.find(",")
-    point = string.find(".")
+    comma = string.find(',')
+    point = string.find('.')
     if comma > 0 and point > 0:
         if comma < point:
-            string = string.replace(",", "")
+            string = string.replace(',', '')
         else:
-            string = string.replace(".", "")
-            string = string.replace(",", ".")
+            string = string.replace('.', '')
+            string = string.replace(',', '.')
     elif comma > 0:
-        string = string.replace(",", ".")
+        string = string.replace(',', '.')
     return string
 
 
 def clean_size(string):
-    """Utility method to remove unnecessary information from a file size string, eg. '6.5 GBytes' -> '6.5 GB'
+    """ Utility method to remove unnecessary information from a file size string, eg. '6.5 GBytes' -> '6.5 GB'
 
     Args:
         string (str): File size string to clean up
@@ -315,16 +265,16 @@ def clean_size(string):
         str: Cleaned up file size
     """
     if string:
-        pos = string.rfind("B")
+        pos = string.rfind('B')
         if pos > 0:
-            string = string[:pos] + "B"
+            string = string[:pos] + 'B'
     else:
         string = ""
     return string
 
 
-def sizeof(num, suffix="B"):
-    """Utility method to convert a file size in bytes to a human-readable format
+def sizeof(num, suffix='B'):
+    """ Utility method to convert a file size in bytes to a human-readable format
 
     Args:
         num    (int): Number of bytes
@@ -333,59 +283,104 @@ def sizeof(num, suffix="B"):
     Returns:
         str: The formatted file size as a string, eg. ``1.21 GB``
     """
-    for unit in ["", "K", "M", "G", "T", "P", "E", "Z"]:
+    for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
         if abs(num) < 1024.0:
             return "%3.1f %s%s" % (num, unit, suffix)
         num /= 1024.0
-    return "%.1f %s%s" % (num, "Y", suffix)
+    return "%.1f %s%s" % (num, 'Y', suffix)
 
 
-def notify(message, image=None):
-    """Creates a notification dialog
+def notify(message, image=None, time=5000):
+    """ Creates a notification dialog
 
     Args:
         message (str): The message to show in the dialog
         image   (str): Path to an icon for this dialog
+        time    (int): How long to show the notification, in milliseconds
     """
     dialog = xbmcgui.Dialog()
-    dialog.notification(ADDON_NAME, message, icon=image, sound=False)
+    dialog.notification(ADDON_NAME, message, icon=image, sound=False, time=time)
     del dialog
 
 
-def clear_cache():
-    """Clears cookies from Burst's cache"""
-    cookies_path = os.path.join(translatePath("special://temp"), "burst")
-    if os.path.isdir(cookies_path):
-        for f in os.listdir(cookies_path):
-            if re.search(".jar", f):
-                os.remove(os.path.join(cookies_path, f))
+provider_errors = []
+provider_errors_lock = Lock()
 
 
-def encode_dict(dict_in, charset="utf8"):
-    """Encodes dict values to UTF-8
+def add_error(message):
+    """ Stores a provider error for the current search, avoiding duplicates
 
     Args:
-        dict_in (dict): Input dictionary with unicode values
+        message (str): The error message to store
+    """
+    with provider_errors_lock:
+        if message not in provider_errors:
+            provider_errors.append(message)
+
+
+def get_errors():
+    """ Returns the provider errors collected during the current search
 
     Returns:
-        dict: Output dictionary with UTF-8 encoded values
+        list: Stored error messages
+    """
+    with provider_errors_lock:
+        return list(provider_errors)
+
+
+def clear_errors():
+    """ Clears the provider errors collected during the previous search """
+    with provider_errors_lock:
+        provider_errors[:] = []
+
+
+def encode_dict(dict_in, charset='utf8'):
+    """ Encodes dict values to the given charset
+
+    Args:
+        dict_in (dict): Input dictionary with str values
+
+    Returns:
+        dict: Output dictionary with encoded values
     """
     try:
         dict_out = {}
-        for k, v in iteritems(dict_in):
-            if PY2 and isinstance(v, unicode):
-                v = v.encode("utf8")
-            elif PY2 and isinstance(v, str):
-                v = v.decode("utf8")
-            elif PY3 and isinstance(v, str):
-                v = v
-            elif PY3 and isinstance(v, bytes):
-                v = v.decode()
-
-            if charset != "utf8":
-                v = v.decode("utf8").encode(charset)
-
+        for k, v in dict_in.items():
+            if isinstance(v, bytes):
+                v = v.decode('utf8')
+            if isinstance(v, str):
+                v = v.encode(charset)
             dict_out[k] = v
         return dict_out
     except:
         return dict_in
+
+def domain_matches(host, cookie_domain):
+    """ Checks if cookie domain applies to the host, ie. '.example.com' applies to 'www.example.com'
+
+    Args:
+        host          (str): Host name, port is ignored
+        cookie_domain (str): Domain of the cookie
+
+    Returns:
+        bool: True if cookie can be sent to the host, False otherwise
+    """
+    host = host.split(':')[0].lower()
+    cookie_domain = cookie_domain.lstrip('.').lower()
+    return bool(cookie_domain) and (host == cookie_domain or host.endswith('.' + cookie_domain))
+
+
+def is_ipv4_address(string_ip):
+    """ Checks if a string is a valid IPv4 address
+
+    Args:
+        string_ip (str): String to check
+
+    Returns:
+        bool: True if string is a valid IPv4 address, False otherwise
+    """
+    try:
+        socket.inet_aton(string_ip)
+    except socket.error:
+        return False
+    return True

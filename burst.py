@@ -22,21 +22,39 @@ def build_payload(**kwargs):
     return payload
 
 
+def normalize_titles(title, titles):
+    """Jacktook may pass an empty string or a dict of translations.
+
+    Burst's search() expects a dict with lower-case language keys.
+    """
+    if isinstance(titles, dict) and titles:
+        return {k.lower(): v for k, v in titles.items()}
+    return {"source": title, "original": title}
+
+
 def general_payload(query):
     return build_payload(query=query)
 
 
 def movie_payload(id, title, titles, year):
-    return build_payload(imdb_id=id, title=title, titles=titles, year=year)
+    return build_payload(
+        imdb_id=id, title=title, titles=normalize_titles(title, titles), year=year
+    )
 
 
 def show_payload(id, title, titles, year):
-    return build_payload(imdb_id=id, title=title, titles=titles, year=year)
+    return build_payload(
+        imdb_id=id, title=title, titles=normalize_titles(title, titles), year=year
+    )
 
 
 def season_payload(id, title, season, titles, year):
     return build_payload(
-        imdb_id=id, title=title, titles=titles, season=season, year=year
+        imdb_id=id,
+        title=title,
+        titles=normalize_titles(title, titles),
+        season=season,
+        year=year,
     )
 
 
@@ -44,7 +62,7 @@ def episode_payload(id, title, season, episode, titles, year):
     return build_payload(
         imdb_id=id,
         title=title,
-        titles=titles,
+        titles=normalize_titles(title, titles),
         season=season,
         episode=episode,
         year=year,

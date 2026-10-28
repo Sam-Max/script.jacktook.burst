@@ -11,7 +11,7 @@ It is a fork of [Elementum Burst](https://github.com/elgatito/script.elementum.b
 |---|---|
 | **Role** | Provider engine: search only, no playback |
 | **Runs on** | Kodi 19+ (Python 3) |
-| **Providers** | 84 definitions: 47 public, 37 private |
+| **Providers** | 84 definitions: 47 public, 37 private, 61 enabled by default |
 | **Search methods** | General, movie, show, season, episode, anime |
 | **License** | MIT |
 
@@ -53,7 +53,7 @@ Settings live under **Add-ons → Program add-ons → Jacktook Burst → Setting
 
 | Category | What you control |
 |---|---|
-| **General** | Public DNS resolution (with public and OpenNIC server lists), Tor domain aliases, overrides folder, size range in GB, max results per provider (default 10), sort order (Resolution, Seeds, Size or Balanced), timeout (default 25 s, auto-adjusted), custom user agent |
+| **General** | Custom DNS with public and OpenNIC resolvers, Tor domain aliases, overrides folder, size range in GB, max results per provider (default 10), sort order (Resolution, Seeds, Size or Balanced), timeout (default 25 s), custom user agent |
 | **Cookie sync** | Optional encrypted cookie sync through a GitHub Gist, for trackers whose session cookies expire |
 | **Public trackers [A .. M]** and **[N .. ]** | Enable providers, set a per-provider domain alias and restrict each one to Movies, Shows or All |
 | **Private trackers [A .. M]** and **[N .. ]** | Same controls plus username/password (or passkey) for each tracker |
@@ -90,7 +90,7 @@ Private trackers require an account on each site. Enabling a private provider wi
 
 API-based providers: AniLibria, Corsaro.red, FileList, RARBG, Torrentio, Torrentz2K and YTS.
 
-Trackers change domains and markup constantly. A provider that returns nothing is usually a broken definition, not a bug in the engine — open an issue with the tracker name.
+23 of the 84 definitions ship disabled because the site is gone, blocked or unmaintained; only enabled providers are searched. Trackers change domains and markup constantly, so a provider that returns nothing is usually a broken definition, not a bug in the engine — open an issue with the tracker name.
 
 ## Custom providers and overrides
 
@@ -143,7 +143,7 @@ python3 -m flake8
 python3 scripts/generate_settings.py
 ```
 
-`generate_settings.py` still imports the `future` package (`pip install -r requirements.txt`).
+Development dependencies live in `requirements.txt` (`pip install -r requirements.txt`).
 
 There is no automated test suite yet: changes are verified manually against live trackers. Keep provider-specific logic inside `providers.json`; the Python modules must stay tracker-agnostic.
 

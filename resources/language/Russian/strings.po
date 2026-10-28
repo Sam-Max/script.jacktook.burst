@@ -147,8 +147,8 @@ msgid "Shows"
 msgstr "Сериалы"
 
 msgctxt "#32084"
-msgid "Use Public DNS (Google, Quad9, Opennic)"
-msgstr "Использовать публичные DNS (Google, Quad9, Opennic)"
+msgid "Use Public DNS (Google, Quad9, OpenNIC)"
+msgstr "Использовать публичные DNS (Google, Quad9, OpenNIC)"
 
 msgctxt "#32085"
 msgid "For Developers"
@@ -187,8 +187,8 @@ msgid "List of public DNS IPs"
 msgstr "Список IP публичных DNS"
 
 msgctxt "#32094"
-msgid "List of Opennic DNS IPs"
-msgstr "Список IP Opennic DNS"
+msgid "List of OpenNIC DNS IPs"
+msgstr "Список IP OpenNIC DNS"
 
 msgctxt "#32095"
 msgid "Proxy"
@@ -376,7 +376,7 @@ msgstr "Использовать домены в Tor"
 
 msgctxt "#32141"
 msgid "First set SOCKS both in Burst&Jacktook or proxy http via Jacktook"
-msgstr "Сперва вкл. SOCKS5h в Burst&Jacktook или [CR]вкл. прокси через Jacktook"
+msgstr "Сперва вкл. SOCKS в Burst&Jacktook или [CR]вкл. прокси через Jacktook"
 
 msgctxt "#32142"
 msgid "Arabic"
@@ -443,7 +443,7 @@ msgid "File url (optional)"
 msgstr "Ссылка на файл (опционально)"
 
 msgctxt "#32158"
-msgid "Configure proxy in Elementum in the same way as here[CR]to avoid issues with downloading torrent files."
+msgid "Configure proxy in Jacktook in the same way as here[CR]to avoid issues with downloading torrent files."
 msgstr "Настройте прокси в elementum так же как тут,[CR]чтобы избежать проблем с загрузкой торрент-файлов."
 
 msgctxt "#32159"
@@ -493,3 +493,7 @@ msgstr "Вход в {0} не удался"
 msgctxt "#32170"
 msgid "Antizapret PAC file URL"
 msgstr "URL файла PAC Antizapret"
+
+msgctxt "#32171"
+msgid "Use OpenNIC DNS servers"
+msgstr "Использовать OpenNIC DNS сервера"
