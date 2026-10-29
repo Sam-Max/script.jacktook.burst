@@ -3163,7 +3163,7 @@
         "login_object": "",
         "login_path": null,
         "movie_extra": "",
-        "movie_keywords": "stream/movies/{imdb_id}.json",
+        "movie_keywords": "stream/movie/{imdb_id}.json",
         "movie_query": "",
         "download_path": "magnet:?xt=urn:btih:",
         "api_format": {
