@@ -6,6 +6,7 @@ Burst web client
 
 import re
 import os
+import concurrent.futures
 import urllib3
 import traceback
 import threading
@@ -44,8 +45,21 @@ if get_setting("use_custom_user_agent", bool):
         log.debug("Using custom User Agent: %s" % (USER_AGENT))
 
 PATH_TEMP = translatePath("special://temp")
-# (connect, read) seconds, so a stalled tracker can't hold a provider thread forever
-REQUEST_TIMEOUT = (5, 20)
+# Driven by the user-configurable "timeout" setting (also used by the
+# overall per-provider search deadline in burst.py) instead of a fixed
+# constant.
+request_timeout = get_setting("timeout", int) or 25
+# (connect, read) seconds for a single attempt. requests/urllib3's own
+# `timeout` only bounds the gap between individual socket reads, not the
+# request as a whole - a server that trickles data slowly enough (an
+# anti-bot challenge holding the connection open, for instance) never
+# trips it and can hang far past this value. `open()` below wraps the
+# whole send+read in a real wall-clock deadline using the same setting,
+# so a stalled tracker can't hold a provider thread forever either way.
+REQUEST_TIMEOUT = (5, request_timeout)
+# DNS lookups must resolve well before the overall request timeout expires
+dns_timeout = min(request_timeout, 10)
+max_retries = get_setting("max_retries", int)
 # Cookie jar file is shared by all provider threads
 cookies_lock = threading.Lock()
 
@@ -137,6 +151,8 @@ def ResolvePublic(host):
         log.debug("Custom DNS resolving with public DNS for: %s" % host)
         resolver = dns.resolver.Resolver()
         resolver.nameservers = dns_public_list
+        resolver.timeout = dns_timeout
+        resolver.lifetime = dns_timeout
         answer = resolver.query(host, 'A')
         return answer.rrset.items[0].address
     except:
@@ -147,6 +163,8 @@ def ResolveOpennic(host):
         log.debug("Custom DNS resolving with OpenNIC DNS for: %s" % host)
         resolver = dns.resolver.Resolver()
         resolver.nameservers = dns_opennic_list
+        resolver.timeout = dns_timeout
+        resolver.lifetime = dns_timeout
         answer = resolver.query(host, 'A')
         return answer.rrset.items[0].address
     except:
@@ -188,9 +206,9 @@ class Client:
 
         # Enabling retrying on failed requests
         retries = Retry(
-            total=3,
-            read=2,
-            connect=2,
+            total=max_retries,
+            read=max_retries,
+            connect=max_retries,
             redirect=3,
             backoff_factor=0.2,
             status_forcelist=[429, 500, 502, 503, 504],
@@ -387,7 +405,23 @@ class Client:
 
         try:
             self._good_spider()
-            with self.session.send(prepped, timeout=REQUEST_TIMEOUT) as response:
+
+            # Enforce a hard wall-clock deadline around the whole send+read,
+            # on top of REQUEST_TIMEOUT's per-read bound - see its comment
+            # above for why the latter alone isn't enough.
+            executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+            future = executor.submit(self.session.send, prepped, timeout=REQUEST_TIMEOUT)
+            try:
+                response_ctx = future.result(timeout=request_timeout)
+            except concurrent.futures.TimeoutError:
+                executor.shutdown(wait=False, cancel_futures=True)
+                raise requests.exceptions.Timeout(
+                    "Request exceeded hard timeout of %ds (stalled response)"
+                    % request_timeout
+                )
+            executor.shutdown(wait=False)
+
+            with response_ctx as response:
                 self.headers = response.headers
                 self.status = response.status_code
                 self.url = response.url

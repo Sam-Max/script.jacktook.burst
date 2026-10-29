@@ -839,7 +839,7 @@ def cookie_fetch_gist_id():
         headers = {'Authorization': 'Bearer %s' % cookie_sync_token}
         # Gists list is paginated, the first page alone misses the file for users with many gists
         for page in range(1, 11):
-            resp = requests.get(url, headers=headers, params={'per_page': 100, 'page': page}, timeout=10)
+            resp = requests.get(url, headers=headers, params={'per_page': 100, 'page': page}, timeout=timeout)
             resp_items = json.loads(resp.text)
             if not isinstance(resp_items, list) or not resp_items:
                 break
@@ -866,7 +866,7 @@ def cookie_fetch_fileurl():
     try:
         url = "https://api.github.com/gists/%s" % (cookie_sync_gist_id)
         headers = {'Authorization': 'Bearer %s' % cookie_sync_token}
-        resp = requests.get(url, headers=headers, timeout=10)
+        resp = requests.get(url, headers=headers, timeout=timeout)
         item = json.loads(resp.text)
 
         if "files" not in item or "id" not in item:
@@ -894,7 +894,7 @@ def cookie_fetch_file():
         if cookie_sync_content:
             resp_items = json.loads(cookie_sync_content)
         else:
-            resp = requests.get(cookie_sync_fileurl, timeout=10)
+            resp = requests.get(cookie_sync_fileurl, timeout=timeout)
             resp_items = json.loads(resp.text)
 
         expires = int(time.time()) + 1000 * 86400
