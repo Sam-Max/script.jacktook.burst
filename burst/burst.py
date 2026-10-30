@@ -52,6 +52,10 @@ SUBPAGE_THREADS = 10
 
 use_kodi_language = get_setting('kodi_language', bool)
 timeout = get_setting("timeout", int)
+# Cookie sync talks to GitHub, not to a tracker, and listing gists can take up
+# to ten requests, so it keeps its own short bound instead of the search
+# timeout, which the user can raise to 180 seconds.
+cookie_sync_timeout = min(timeout, 10)
 debug_parser = get_setting("use_debug_parser", bool)
 max_results = get_setting('max_results', int)
 sort_by = get_setting('sort_by', int)
@@ -839,7 +843,7 @@ def cookie_fetch_gist_id():
         headers = {'Authorization': 'Bearer %s' % cookie_sync_token}
         # Gists list is paginated, the first page alone misses the file for users with many gists
         for page in range(1, 11):
-            resp = requests.get(url, headers=headers, params={'per_page': 100, 'page': page}, timeout=10)
+            resp = requests.get(url, headers=headers, params={'per_page': 100, 'page': page}, timeout=cookie_sync_timeout)
             resp_items = json.loads(resp.text)
             if not isinstance(resp_items, list) or not resp_items:
                 break
@@ -866,7 +870,7 @@ def cookie_fetch_fileurl():
     try:
         url = "https://api.github.com/gists/%s" % (cookie_sync_gist_id)
         headers = {'Authorization': 'Bearer %s' % cookie_sync_token}
-        resp = requests.get(url, headers=headers, timeout=10)
+        resp = requests.get(url, headers=headers, timeout=cookie_sync_timeout)
         item = json.loads(resp.text)
 
         if "files" not in item or "id" not in item:
@@ -894,7 +898,7 @@ def cookie_fetch_file():
         if cookie_sync_content:
             resp_items = json.loads(cookie_sync_content)
         else:
-            resp = requests.get(cookie_sync_fileurl, timeout=10)
+            resp = requests.get(cookie_sync_fileurl, timeout=cookie_sync_timeout)
             resp_items = json.loads(resp.text)
 
         expires = int(time.time()) + 1000 * 86400
