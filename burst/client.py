@@ -409,6 +409,12 @@ class Client:
             # Enforce a hard wall-clock deadline around the whole send+read,
             # on top of REQUEST_TIMEOUT's per-read bound - see its comment
             # above for why the latter alone isn't enough.
+            # The send runs in a worker thread so a deadline hit frees the
+            # provider even if the socket keeps trickling. shutdown(wait=False)
+            # does not cancel that worker: it holds the socket until the read
+            # finishes and the response it returns is never used. That is
+            # deliberate, one disposable worker is cheaper than a stuck
+            # provider thread, but do not assume the connection is closed here.
             executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
             future = executor.submit(self.session.send, prepped, timeout=REQUEST_TIMEOUT)
             try:
