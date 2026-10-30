@@ -377,7 +377,16 @@ def extract_torrents(provider, client):
         key_str = key.__str__()
         log.debug("[%s] Parser debug | Matched '%s' iteration for query '%s': %s" % (provider, 'key', key_search, key_str.replace('\r', '').replace('\n', '')))
 
-    items = eval(row_search)
+    try:
+        items = eval(row_search)
+    except StopIteration:
+        # The row expression (e.g. find_once(...).find_all(...)) found no matching
+        # container on the page - likely a layout change or an error/empty page.
+        # Letting this escape would otherwise surface as a misleading
+        # "generator raised StopIteration" RuntimeError (PEP 479), since this
+        # function is itself a generator. Treat it the same as "no results".
+        log.debug("[%s] Parser debug | No rows matched query '%s'; treating as no results" % (provider, row_search))
+        return
     if debug_parser:
         log.debug("[%s] Parser debug | Matched %d items for '%s' query '%s'" % (provider, len(items), 'row', row_search))
 
