@@ -1,7 +1,7 @@
 # Jacktook Burst
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Kodi 19+](https://img.shields.io/badge/Kodi-19%2B-17B2E7.svg)](https://kodi.tv)
+[![Kodi 20+](https://img.shields.io/badge/Kodi-20%2B-17B2E7.svg)](https://kodi.tv)
 
 **Jacktook Burst is the torrent provider engine for [Jacktook](https://github.com/Sam-Max/plugin.video.jacktook) on Kodi.** It searches 84 tracker definitions in parallel and returns magnet links and `.torrent` URLs to Jacktook, which resolves and plays them. Burst never plays anything by itself.
 
@@ -10,14 +10,14 @@ It is a fork of [Elementum Burst](https://github.com/elgatito/script.elementum.b
 | | |
 |---|---|
 | **Role** | Provider engine: search only, no playback |
-| **Runs on** | Kodi 19+ (Python 3) |
+| **Runs on** | Kodi 20+ (Python 3.11) |
 | **Providers** | 84 definitions: 47 public, 37 private, 61 enabled by default |
 | **Search methods** | General, movie, show, season, episode, anime |
 | **License** | MIT |
 
 ## Quick start
 
-Requirements: Kodi 19 or newer and the [Jacktook](https://github.com/Sam-Max/plugin.video.jacktook) addon. Burst feeds Jacktook; without it there is nothing to receive the results.
+Requirements: Kodi 20 or newer and the [Jacktook](https://github.com/Sam-Max/plugin.video.jacktook) addon. Burst feeds Jacktook; without it there is nothing to receive the results.
 
 ### Install from the Jacktook repository (recommended)
 

@@ -188,7 +188,7 @@ class S4Metadata(unittest.TestCase):
         self.assertEqual(root.get("id"), "script.jacktook.burst")
         self.assertRegex(root.get("version"), r"^\d+\.\d+\.\d+$")
         imports = {e.get("addon"): e.get("version") for e in root.iter() if e.tag == "import"}
-        self.assertEqual(imports.get("xbmc.python"), "3.0.0")
+        self.assertEqual(imports.get("xbmc.python"), "3.0.1")
         for addon in ("plugin.video.jacktook", "script.module.kodi-six",
                       "script.module.requests", "script.module.pycryptodome"):
             self.assertIn(addon, imports)
