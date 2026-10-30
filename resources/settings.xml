@@ -23,7 +23,8 @@
     <setting label="32124" id="auto_timeout" type="bool" default="true" />
     <setting label="32070" id="timeout" type="slider" default="25" option="int" range="3,1,180" enable="eq(-1,false)" />
     <setting label="32071" id="timeout_help" type="text" enable="false" subsetting="true" />
-    <setting label="Max Retries" id="max_retries" type="slider" default="1" option="int" range="0,1,5" />
+    <setting label="32172" id="max_retries" type="slider" default="1" option="int" range="0,1,5" />
+    <setting label="32173" id="max_retries_help" type="text" enable="false" subsetting="true" />
 
     <setting label="32163" type="lsep" />
     <setting label="32164" id="use_custom_user_agent" type="bool" default="false" />
