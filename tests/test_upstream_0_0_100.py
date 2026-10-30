@@ -9,7 +9,7 @@ from xml.etree import ElementTree
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = os.path.join(REPO, "resources", "site-packages")
-DEFAULTS = {"timeout": "25", "max_results": "10", "sort_by": "3", "proxy_type": "5",
+DEFAULTS = {"timeout": "25", "max_retries": "1", "max_results": "10", "sort_by": "3", "proxy_type": "5",
             "proxy_use_type": "2", "proxy_port": "1080", "min_size": "0", "max_size": "100",
             "overwrite_anime_original_title": "1", "min_size_movies": "0", "max_size_movies": "100",
             "min_size_seasons": "0", "max_size_seasons": "100", "min_size_episodes": "0",

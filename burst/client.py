@@ -48,7 +48,7 @@ PATH_TEMP = translatePath("special://temp")
 # Driven by the user-configurable "timeout" setting (also used by the
 # overall per-provider search deadline in burst.py) instead of a fixed
 # constant.
-request_timeout = get_setting("timeout", int) or 25
+request_timeout = get_setting("timeout", int)
 # (connect, read) seconds for a single attempt. requests/urllib3's own
 # `timeout` only bounds the gap between individual socket reads, not the
 # request as a whole - a server that trickles data slowly enough (an
