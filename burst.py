@@ -32,33 +32,42 @@ def normalize_titles(title, titles):
     return {"source": title, "original": title}
 
 
-def general_payload(query):
-    return build_payload(query=query)
+def general_payload(query, silent=False):
+    return build_payload(query=query, silent=silent)
 
 
-def movie_payload(id, title, titles, year):
+def movie_payload(id, title, titles, year, silent=False):
     return build_payload(
-        imdb_id=id, title=title, titles=normalize_titles(title, titles), year=year
+        imdb_id=id,
+        title=title,
+        titles=normalize_titles(title, titles),
+        year=year,
+        silent=silent,
     )
 
 
-def show_payload(id, title, titles, year):
+def show_payload(id, title, titles, year, silent=False):
     return build_payload(
-        imdb_id=id, title=title, titles=normalize_titles(title, titles), year=year
+        imdb_id=id,
+        title=title,
+        titles=normalize_titles(title, titles),
+        year=year,
+        silent=silent,
     )
 
 
-def season_payload(id, title, season, titles, year):
+def season_payload(id, title, season, titles, year, silent=False):
     return build_payload(
         imdb_id=id,
         title=title,
         titles=normalize_titles(title, titles),
         season=season,
         year=year,
+        silent=silent,
     )
 
 
-def episode_payload(id, title, season, episode, titles, year):
+def episode_payload(id, title, season, episode, titles, year, silent=False):
     return build_payload(
         imdb_id=id,
         title=title,
@@ -66,6 +75,7 @@ def episode_payload(id, title, season, episode, titles, year):
         season=season,
         episode=episode,
         year=year,
+        silent=silent,
     )
 
 
@@ -85,33 +95,44 @@ def to_provider_results(obj):
 
 
 class JacktookProvider(Provider):
-    def search(self, query):
-        s = search(general_payload(query), "general")
+    def search(self, query, silent=False):
+        s = search(general_payload(query, silent), "general")
         return to_provider_results(s)
 
-    def search_movie(self, id, title, titles="", year=""):
+    def search_movie(self, id, title, titles="", year="", silent=False):
         logging.debug("search_movie")
-        s = search(movie_payload(id, title, titles, year), "movie")
+        s = search(movie_payload(id, title, titles, year, silent), "movie")
         results = to_provider_results(s)
         logging.debug(results)
         return results
 
-    def search_show(self, id, title, titles="", year=""):
+    def search_show(self, id, title, titles="", year="", silent=False):
         logging.debug("search_show")
-        s = search(show_payload(id, title, titles, year), "season")
+        s = search(show_payload(id, title, titles, year, silent), "season")
         results = to_provider_results(s)
         logging.debug(results)
         return results
 
-    def search_season(self, id, title, season_number, titles="", year=""):
-        s = search(season_payload(id, title, season_number, titles, year), "season")
+    def search_season(self, id, title, season_number, titles="", year="", silent=False):
+        s = search(
+            season_payload(id, title, season_number, titles, year, silent), "season"
+        )
         return to_provider_results(s)
 
     def search_episode(
-        self, id, title, season_number, episode_number, titles="", year=""
+        self,
+        id,
+        title,
+        season_number,
+        episode_number,
+        titles="",
+        year="",
+        silent=False,
     ):
         s = search(
-            episode_payload(id, title, season_number, episode_number, titles, year),
+            episode_payload(
+                id, title, season_number, episode_number, titles, year, silent
+            ),
             "episode",
         )
         return to_provider_results(s)

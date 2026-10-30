@@ -144,6 +144,13 @@ class S2ForkFixes(unittest.TestCase):
         self.assertIn('"provider": definition[\'name\'],', src("burst/provider.py"))
         self.assertNotIn("[COLOR %s]", src("burst/provider.py"))
 
+    def test_silent_flag_reaches_payload(self):
+        spec = importlib.util.spec_from_file_location("burst_entry_silent", os.path.join(REPO, "burst.py"))
+        entry = importlib.util.module_from_spec(spec); spec.loader.exec_module(entry)
+        self.assertFalse(entry.movie_payload("tt1", "T", "", 1999)["silent"])
+        self.assertTrue(entry.movie_payload("tt1", "T", "", 1999, silent=True)["silent"])
+        self.assertTrue(entry.episode_payload("tt1", "T", 1, 2, "", 1999, silent=True)["silent"])
+
     def test_titles_are_normalized(self):
         spec = importlib.util.spec_from_file_location("burst_entry", os.path.join(REPO, "burst.py"))
         entry = importlib.util.module_from_spec(spec); spec.loader.exec_module(entry)
