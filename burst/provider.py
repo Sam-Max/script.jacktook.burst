@@ -9,6 +9,7 @@ import re
 import json
 import logging
 import time
+import traceback
 from .client import Client
 from .kodi import get_setting
 from .filtering import cleanup_results
@@ -338,4 +339,5 @@ def process(provider, generator, filtering, has_special, verify_name=True, verif
                                 verify_size))
         except Exception as e:
             log.error("[%s] Error from payload generator: %s", provider, e)
+            log.debug("[%s] Payload generator traceback: %s", provider, traceback.format_exc())
     return filtering.results
