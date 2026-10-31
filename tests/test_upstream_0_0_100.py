@@ -136,6 +136,19 @@ class S2ForkFixes(unittest.TestCase):
     def test_yts_base_url_uses_bz(self):
         self.assertTrue(self.p["yts"]["base_url"].startswith("https://yts.bz/"))
 
+    def test_torrentio_movie_uses_singular_stream_path(self):
+        # Torrentio's plural /stream/movies/ answers 200 with {"streams":[]} for every title.
+        import burst.filtering as filtering
+        f = filtering.Filtering()
+        f.use_movie("torrentio", {"imdb_id": "tt0111161", "title": "The Shawshank Redemption",
+                                  "titles": {"source": "The Shawshank Redemption",
+                                             "original": "The Shawshank Redemption"},
+                                  "year": "1994", "silent": True, "skip_auth": False})
+        self.assertTrue(f.queries)
+        for query in f.queries:
+            self.assertTrue(query.startswith("stream/movie/"), query)
+            self.assertNotIn("stream/movies/", query)
+
     def test_bitsearch_has_headers(self):
         self.assertIn("bitsearch.to", self.p["bitsearch"]["headers"])
         self.assertIn("Referer", self.p["bitsearch"]["headers"])
